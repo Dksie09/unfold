@@ -471,6 +471,50 @@ function drapePanel(s: Sketch, x: number, top: number, w: number, c: string) {
   s.line(x + w * 0.5, top + 0.02, x + w * 0.5, 0.95, { w: 1, alpha: 0.6 });
 }
 
+const MANDAP_H = 0.7;
+
+/** A mandap pillar: stepped base, slim gold shaft, a capital, and a kalash pot at its foot. */
+function mandapPillar(iso: Iso, a: number, b: number) {
+  iso.box(a - 0.035, b - 0.035, 0, 0.07, 0.07, 0.03, WHITE, { color: "#efd6ae" });
+  iso.box(a - 0.025, b - 0.025, 0.03, 0.05, 0.05, 0.03, WHITE, { color: WED.pillar });
+  iso.box(a - 0.014, b - 0.014, 0.06, 0.028, 0.028, MANDAP_H - 0.1, WHITE, { color: WED.pillar });
+  iso.box(a - 0.026, b - 0.026, MANDAP_H - 0.04, 0.052, 0.052, 0.04, WHITE, { color: "#efd6ae" });
+  // marigold strand wound down the pillar
+  iso.at([a + 0.014, b + 0.014, MANDAP_H - 0.06], (s, [x, y], u) => {
+    for (let k = 0; k < 10; k++) s.blob(x + Math.sin(k * 1.3) * 0.008 * u, y + k * 0.05 * u, 0.009 * u, 0.008 * u, tint(MARIGOLD[k % 3]), { w: 1, mask: true });
+  });
+  // kalash: a round pot with mango leaves and a coconut
+  const ka = a + 0.06;
+  const kb = b + 0.06;
+  iso.cyl(ka, kb, 0, 0.022, 0.05, WHITE, { r2: 0.016, color: GOLD });
+  iso.at([ka, kb, 0.05], (s, [x, y], u) => {
+    for (const r of [-0.9, 0, 0.9]) almondLeaf(s, x + r * 0.012 * u, y - 0.012 * u, 0.013 * u, r, LEAF, true);
+    s.blob(x, y - 0.02 * u, 0.012 * u, 0.012 * u, tint("#c9a27a"), { w: 1.3, mask: true });
+  });
+}
+
+/** One side of the mandap: a beam with a scalloped fabric swag and hanging marigold strands. */
+function mandapSide(iso: Iso, p: [number, number], q: [number, number]) {
+  const H = MANDAP_H;
+  const n = 16;
+  const edge: [number, number, number][] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const sag = Math.abs(Math.sin(t * Math.PI * 2)) * 0.07 + 0.015;
+    edge.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, H - sag]);
+  }
+  iso.face([[p[0], p[1], H], ...edge, [q[0], q[1], H]], tint(WED.drape), { w: 1.8 });
+  iso.line([p[0], p[1], H + 0.012], [q[0], q[1], H + 0.012], { w: 3.2 });
+  for (const t of [0.25, 0.5, 0.75]) {
+    const a = p[0] + (q[0] - p[0]) * t;
+    const b = p[1] + (q[1] - p[1]) * t;
+    iso.at([a, b, H - 0.02], (s, [x, y], u) => {
+      s.line(x, y, x, y + 0.13 * u, { w: 1, mask: true });
+      for (let k = 0; k < 5; k++) s.blob(x, y + (0.025 + k * 0.022) * u, 0.01 * u, 0.009 * u, tint(MARIGOLD[k % 3]), { w: 1, mask: true });
+    });
+  }
+}
+
 const wedding: Room = {
   name: "wedding",
   mood: ev("wedding").tagline,
@@ -513,56 +557,42 @@ const wedding: Room = {
   },
   popups: isoLayers([
     (iso) => {
-      // mandap: three pillars at the back and a frame on top hung with marigolds
-      const H = 0.72;
-      const P = [
-        [0.24, 0.24],
-        [0.72, 0.24],
-        [0.24, 0.72],
-      ];
-      for (const [a, b] of P) {
-        iso.box(a - 0.025, b - 0.025, 0, 0.05, 0.05, 0.04, WHITE, { color: WED.pillar });
-        iso.box(a - 0.015, b - 0.015, 0.04, 0.03, 0.03, H - 0.04, WHITE, { color: WED.pillar });
-      }
-      for (const [a0, b0, a1, b1] of [
-        [0.24, 0.24, 0.72, 0.24],
-        [0.24, 0.24, 0.24, 0.72],
-        [0.72, 0.24, 0.72, 0.72],
-        [0.24, 0.72, 0.72, 0.72],
-      ]) {
-        iso.line([a0, b0, H], [a1, b1, H], { w: 3 });
-        for (let t = 0.1; t < 1; t += 0.2) {
-          const a = a0 + (a1 - a0) * t;
-          const b = b0 + (b1 - b0) * t;
-          iso.at([a, b, H], (s, [x, y], u) => {
-            s.line(x, y, x, y + 0.1 * u, { w: 1, mask: true });
-            for (let k = 0; k < 4; k++) s.blob(x, y + (0.02 + k * 0.022) * u, 0.01 * u, 0.009 * u, tint(MARIGOLD[k % 3]), { w: 1, mask: true });
-          });
-        }
-      }
+      // mandap, back half: three pillars on stepped bases with kalash pots, and the two back
+      // sides hung with scalloped fabric and marigolds
+      for (const [a, b] of [
+        [0.22, 0.22],
+        [0.74, 0.22],
+        [0.22, 0.74],
+      ])
+        mandapPillar(iso, a, b);
+      mandapSide(iso, [0.22, 0.22], [0.74, 0.22]);
+      mandapSide(iso, [0.22, 0.22], [0.22, 0.74]);
     },
     (iso) => {
-      // the sacred fire (havan kund) and two low seats
-      iso.box(0.4, 0.4, 0, 0.14, 0.14, 0.04, WHITE, { color: "#e2c49a" });
-      iso.box(0.42, 0.42, 0.04, 0.1, 0.1, 0.04, WHITE, { color: "#e2c49a" });
-      iso.at([0.47, 0.47, 0.08], (s, [x, y], u) => {
-        if (look.color) s.glow(x, y - 0.1 * u, 0.22 * u, "#ffb347", 0.65);
-        const flame = soft(
+      // the sacred fire on its stepped kund, two seats, a brass plate of offerings
+      iso.box(0.38, 0.38, 0, 0.18, 0.18, 0.035, WHITE, { color: "#e2c49a" });
+      iso.box(0.405, 0.405, 0.035, 0.13, 0.13, 0.035, WHITE, { color: "#efd6ae" });
+      iso.box(0.43, 0.43, 0.07, 0.08, 0.08, 0.03, WHITE, { color: "#e2c49a" });
+      iso.at([0.47, 0.47, 0.1], (s, [x, y], u) => {
+        if (look.color) s.glow(x, y - 0.1 * u, 0.24 * u, "#ffb347", 0.65);
+        const outer = soft(
           [
             [x - 0.07 * u, y],
-            [x - 0.04 * u, y - 0.12 * u],
-            [x - 0.01 * u, y - 0.22 * u],
-            [x + 0.03 * u, y - 0.11 * u],
+            [x - 0.055 * u, y - 0.1 * u],
+            [x - 0.02 * u, y - 0.15 * u],
+            [x - 0.005 * u, y - 0.23 * u],
+            [x + 0.03 * u, y - 0.13 * u],
+            [x + 0.05 * u, y - 0.17 * u],
             [x + 0.07 * u, y],
           ],
           2,
         );
-        s.shape(flame, tint("#ffcf5a"), { mask: true, w: 1.6 });
+        s.shape(outer, tint("#ffcf5a"), { mask: true, w: 1.6 });
         s.shape(
           soft(
             [
               [x - 0.035 * u, y],
-              [x, y - 0.11 * u],
+              [x - 0.01 * u, y - 0.12 * u],
               [x + 0.035 * u, y],
             ],
             2,
@@ -571,18 +601,52 @@ const wedding: Room = {
           { mask: true, w: 1.2 },
         );
       });
-      cushion(iso, 0.58, 0.36, 0.11, WED.seat);
-      cushion(iso, 0.36, 0.58, 0.11, WED.seat);
+      cushion(iso, 0.6, 0.34, 0.12, WED.seat);
+      cushion(iso, 0.34, 0.6, 0.12, WED.seat);
+      iso.cyl(0.6, 0.6, 0, 0.05, 0.015, WHITE, { r2: 0.06, color: GOLD });
+      iso.at([0.6, 0.6, 0.015], (s, [x, y], u) => {
+        for (const [dx, dy, c] of [
+          [-0.02, -0.005, MARIGOLD[0]],
+          [0.018, -0.008, "#f6b7aa"],
+          [0, -0.02, MARIGOLD[1]],
+        ] as const)
+          s.blob(x + dx * u, y + dy * u, 0.012 * u, 0.01 * u, tint(c), { w: 1.2, mask: true });
+      });
     },
     (iso) => {
-      // the front pillar
-      iso.box(0.695, 0.695, 0, 0.05, 0.05, 0.04, WHITE, { color: WED.pillar });
-      iso.box(0.705, 0.705, 0.04, 0.03, 0.03, 0.68, WHITE, { color: WED.pillar });
+      // front half: the fourth pillar, the two front sides and a peaked canopy on top
+      mandapPillar(iso, 0.74, 0.74);
+      mandapSide(iso, [0.74, 0.22], [0.74, 0.74]);
+      mandapSide(iso, [0.22, 0.74], [0.74, 0.74]);
+      const H = MANDAP_H;
+      const apex: [number, number, number] = [0.48, 0.48, H + 0.2];
+      iso.face([[0.74, 0.22, H], [0.74, 0.74, H], apex], tint(WED.drape2), { w: 2.2 });
+      iso.face([[0.22, 0.74, H], [0.74, 0.74, H], apex], tint(WED.drape), { w: 2.2 });
+      for (const t of [0.33, 0.66]) {
+        iso.line([0.74, 0.22 + 0.52 * t, H], apex, { w: 1, alpha: 0.55 });
+        iso.line([0.22 + 0.52 * t, 0.74, H], apex, { w: 1, alpha: 0.55 });
+      }
+      iso.at(apex, (s, [x, y], u) => {
+        s.blob(x, y - 0.02 * u, 0.02 * u, 0.025 * u, tint(GOLD), { w: 1.6, mask: true });
+        s.line(x, y - 0.045 * u, x, y - 0.07 * u, { w: 1.6, mask: true });
+      });
     },
   ]),
 };
 
-const REC = { wall: "#f6f1e7", floor: "#e9e1d3", accent: "#efe2c4", cloth: "#fffaf0", cake: "#fbefd9", glass: "#dcebfa" };
+const REC = {
+  wall: "#f6f1e7",
+  floor: "#e9e1d3",
+  accent: "#efe2c4",
+  cloth: "#fffaf0",
+  cake: "#fbefd9",
+  glass: "#dcebfa",
+  sofa: "#f3dccd",
+  blush: "#f7ccd6",
+  champagne: "#f5e3b0",
+  gift: ["#f7ccd6", "#cfe0f7", "#f5e3b0"],
+  runner: "#f6d6d0",
+};
 
 function chandelier(s: Sketch, x: number, y: number, w: number) {
   s.line(x, 0, x, y, { w: 1.6 });
@@ -599,26 +663,73 @@ function chandelier(s: Sketch, x: number, y: number, w: number) {
   }
 }
 
+/** A floral arch on the wall behind the couple's seat, with their initials on a little sign. */
+function floralArch(s: Sketch, x0: number, x1: number, top: number) {
+  const cx = (x0 + x1) / 2;
+  const rx = (x1 - x0) / 2;
+  const arch: Pt[] = [[x0, 0.98], ...s.ellipsePts(cx, top + rx * 0.9, rx, rx * 0.9, Math.PI, Math.PI * 2, 24), [x1, 0.98]];
+  s.stroke(arch, { w: 2.4 });
+  const ring = s.ellipsePts(cx, top + rx * 0.9, rx, rx * 0.9, Math.PI, Math.PI * 2, 22);
+  const path: Pt[] = [
+    ...Array.from({ length: 8 }, (_, i) => [x0, 0.98 - i * ((0.98 - top - rx * 0.9) / 8)] as Pt),
+    ...ring,
+    ...Array.from({ length: 8 }, (_, i) => [x1, top + rx * 0.9 + i * ((0.98 - top - rx * 0.9) / 8)] as Pt),
+  ];
+  path.forEach(([x, y], i) => {
+    if (i % 3 === 1) almondLeaf(s, x + (i % 2 ? 0.015 : -0.015), y, 0.016, i % 2 ? 0.9 : -0.9, LEAF);
+  });
+  path.forEach(([x, y], i) => {
+    if (i % 2 === 0) flower(s, x, y, 0.011, i % 4 === 0 ? REC.blush : "#fffaf0");
+  });
+  // the sign
+  const sign = s.rectPts(cx - 0.08, top + rx * 0.55, 0.16, 0.08);
+  s.sticker(sign, 3, 0.18, tint("#fffaf0"));
+  s.stroke(sign, { closed: true, w: 1.8 });
+  s.text(WEDDING.initials, cx, top + rx * 0.55 + 0.04, 0.05);
+  s.line(cx - 0.05, top + rx * 0.55, cx - 0.03, top + rx * 0.4, { w: 1 });
+  s.line(cx + 0.05, top + rx * 0.55, cx + 0.03, top + rx * 0.4, { w: 1 });
+}
+
+/** A bunch of balloons on strings. */
+function balloons(s: Sketch, x: number, y: number) {
+  const list: [number, number, string][] = [
+    [-0.03, -0.05, REC.blush],
+    [0.03, -0.07, "#fffaf0"],
+    [0.0, -0.11, REC.champagne],
+    [0.05, -0.02, REC.blush],
+  ];
+  for (const [dx, dy] of list) s.stroke([[x, y + 0.12], [x + dx * 0.6, y + 0.05], [x + dx, y + dy + 0.03]], { w: 1 });
+  for (const [dx, dy, c] of list) {
+    const b = s.ellipsePts(x + dx, y + dy, 0.026, 0.032);
+    s.sticker(b, 2, 0.14, tint(c));
+    s.stroke(b, { closed: true, w: 1.6 });
+    s.line(x + dx - 0.01, y + dy - 0.015, x + dx - 0.005, y + dy - 0.022, { w: 1.4, alpha: 0.7 });
+  }
+}
+
 const reception: Room = {
   name: "reception",
   mood: ev("reception").tagline,
   left(s) {
     wash(s, REC.wall);
-    chandelier(s, 0.5, 0.18, 0.14);
-    for (const x of [0.12, 0.72]) {
-      const win: Pt[] = [[x, 0.86], [x, 0.42], ...s.ellipsePts(x + 0.08, 0.42, 0.08, 0.1, Math.PI, Math.PI * 2, 10), [x + 0.16, 0.86]];
+    for (const x of [0.06, 0.78]) {
+      const win: Pt[] = [[x, 0.86], [x, 0.44], ...s.ellipsePts(x + 0.08, 0.44, 0.08, 0.1, Math.PI, Math.PI * 2, 10), [x + 0.16, 0.86]];
       s.sticker(win, 5, 0.18, tint(REC.glass));
       s.stroke(win, { closed: true, w: 2.4 });
-      s.line(x + 0.08, 0.34, x + 0.08, 0.86, { w: 1.6 });
-      s.line(x, 0.6, x + 0.16, 0.6, { w: 1.6 });
+      s.line(x + 0.08, 0.36, x + 0.08, 0.86, { w: 1.6 });
+      s.line(x, 0.62, x + 0.16, 0.62, { w: 1.6 });
     }
+    floralArch(s, 0.33, 0.67, 0.34);
+    chandelier(s, 0.5, 0.12, 0.12);
+    balloons(s, 0.94, 0.32);
   },
   right(s) {
     wash(s, REC.wall);
     fairyLights(s, 0.02, 0.98, 0.06, 0.05);
-    inviteCard(s, ev("reception"), 0.28, 0.16, 0.44, 0.46, REC.accent);
-    couplePhoto(s, 0.06, 0.3, 0.13, 0.16, -0.03);
-    couplePhoto(s, 0.8, 0.34, 0.12, 0.14, 0.05);
+    inviteCard(s, ev("reception"), 0.28, 0.14, 0.44, 0.42, REC.accent);
+    couplePhoto(s, 0.06, 0.26, 0.13, 0.16, -0.03);
+    couplePhoto(s, 0.8, 0.2, 0.12, 0.14, 0.05);
+    balloons(s, 0.12, 0.62);
   },
   floor(s) {
     if (look.color) s.washAll(tint(REC.floor), 1);
@@ -628,38 +739,127 @@ const reception: Room = {
       const y = s.r();
       s.line(x, y, x + 0.05, y + 0.02, { w: 1, alpha: 0.25 });
     }
-    s.shadow(s.ellipsePts(...F(0.18, 0.2), 0.12, 0.1), 0.22, 14);
-    s.shadow(s.ellipsePts(...F(0.56, 0.56), 0.18, 0.15), 0.22, 16);
+    // an aisle runner up to the couple's seat, edged with petals
+    const run = [F(0.26, 0.42), F(1.0, 0.42), F(1.0, 0.58), F(0.26, 0.58)];
+    s.sticker(run, 2, 0.1, tint(REC.runner));
+    s.stroke(run, { closed: true, w: 1.6 });
+    for (let a = 0.3; a < 1; a += 0.06)
+      for (const b of [0.4, 0.6]) {
+        const [px, py] = F(a, b);
+        s.blob(px, py, 0.008, 0.006, tint(REC.blush), { w: 1 });
+      }
+    s.shadow(s.ellipsePts(...F(0.14, 0.14), 0.1, 0.1), 0.22, 14);
+    s.shadow([F(0.04, 0.34), F(0.2, 0.34), F(0.2, 0.66), F(0.04, 0.66)], 0.22, 14);
+    s.shadow(s.ellipsePts(...F(0.62, 0.74), 0.17, 0.14), 0.22, 16);
   },
   popups: isoLayers([
     (iso) => {
-      // cake table in the corner with a three-tier cake
-      iso.cyl(0.18, 0.18, 0, 0.12, 0.2, WHITE, { color: REC.cloth });
-      iso.cyl(0.18, 0.18, 0.2, 0.08, 0.07, WHITE, { color: REC.cake });
-      iso.cyl(0.18, 0.18, 0.27, 0.06, 0.06, WHITE, { color: REC.cake });
-      iso.cyl(0.18, 0.18, 0.33, 0.04, 0.05, WHITE, { color: REC.cake });
-      iso.at([0.18, 0.18, 0.38], (s, [x, y], u) => {
+      // cake table in the corner with a three-tier cake and a cake topper
+      iso.cyl(0.14, 0.14, 0, 0.1, 0.22, WHITE, { color: REC.cloth });
+      iso.cyl(0.14, 0.14, 0.22, 0.07, 0.07, WHITE, { color: REC.cake });
+      iso.cyl(0.14, 0.14, 0.29, 0.052, 0.06, WHITE, { color: REC.cake });
+      iso.cyl(0.14, 0.14, 0.35, 0.036, 0.05, WHITE, { color: REC.cake });
+      iso.at([0.14, 0.14, 0.4], (s, [x, y], u) => {
         s.blob(x - 0.01 * u, y - 0.012 * u, 0.012 * u, 0.012 * u, tint("#f6b7aa"), { w: 1.3, mask: true });
-        s.blob(x + 0.012 * u, y - 0.008 * u, 0.01 * u, 0.01 * u, tint("#f7ccd6"), { w: 1.3, mask: true });
+        s.blob(x + 0.012 * u, y - 0.008 * u, 0.01 * u, 0.01 * u, tint(REC.blush), { w: 1.3, mask: true });
+        s.line(x - 0.008 * u, y - 0.02 * u, x - 0.008 * u, y - 0.06 * u, { w: 1.2, mask: true });
+        s.line(x + 0.008 * u, y - 0.02 * u, x + 0.008 * u, y - 0.06 * u, { w: 1.2, mask: true });
+        s.text("a&m", x, y - 0.07 * u, 0.026 * u);
+        s.maskFill(s.rectPts(x - 0.022 * u, y - 0.085 * u, 0.044 * u, 0.03 * u));
+      });
+      // the couple's loveseat under the floral arch
+      iso.box(0.04, 0.36, 0, 0.16, 0.3, 0.12, WHITE, { color: REC.sofa });
+      iso.box(0.03, 0.34, 0.12, 0.05, 0.34, 0.2, WHITE, { color: REC.sofa });
+      iso.box(0.04, 0.33, 0, 0.16, 0.04, 0.19, WHITE, { color: REC.sofa });
+      iso.box(0.04, 0.65, 0, 0.16, 0.04, 0.19, WHITE, { color: REC.sofa });
+      iso.box(0.08, 0.4, 0.12, 0.05, 0.1, 0.08, WHITE, { color: REC.blush });
+      iso.box(0.08, 0.53, 0.12, 0.05, 0.1, 0.08, WHITE, { color: REC.champagne });
+      // a champagne tower on a little round table by the right wall
+      iso.cyl(0.42, 0.12, 0, 0.07, 0.2, WHITE, { r2: 0.07, color: REC.cloth });
+      iso.at([0.42, 0.12, 0.2], (s, [x, y], u) => {
+        const coupe = (cx: number, cy: number) => {
+          const bowl: Pt[] = [[cx - 0.016 * u, cy - 0.022 * u], [cx + 0.016 * u, cy - 0.022 * u], [cx + 0.004 * u, cy - 0.008 * u], [cx - 0.004 * u, cy - 0.008 * u]];
+          s.shape(bowl, tint(REC.champagne), { mask: true, w: 1.2 });
+          s.line(cx, cy - 0.008 * u, cx, cy, { w: 1.1, mask: true });
+          s.line(cx - 0.008 * u, cy, cx + 0.008 * u, cy, { w: 1.1, mask: true });
+        };
+        for (const [n, row] of [
+          [4, 0],
+          [3, 1],
+          [2, 2],
+          [1, 3],
+        ])
+          for (let i = 0; i < n; i++) coupe(x + (i - (n - 1) / 2) * 0.034 * u, y - row * 0.026 * u);
+        for (let k = 0; k < 4; k++) s.circle(x + (k - 1.5) * 0.02 * u, y - 0.12 * u - (k % 2) * 0.01 * u, 0.003 * u, { w: 1, mask: true });
+      });
+      // gift table with wrapped presents
+      iso.box(0.62, 0.04, 0, 0.3, 0.14, 0.2, WHITE, { color: REC.cloth });
+      const gifts: [number, number, number, number, number][] = [
+        [0.64, 0.06, 0.08, 0.08, 0.08],
+        [0.74, 0.07, 0.07, 0.07, 0.11],
+        [0.83, 0.06, 0.07, 0.08, 0.06],
+      ];
+      gifts.forEach(([a, b, da, db, h], i) => {
+        iso.box(a, b, 0.2, da, db, h, WHITE, { color: REC.gift[i] });
+        iso.line([a + da / 2, b, 0.2 + h], [a + da / 2, b + db, 0.2 + h], { w: 1.6 });
+        iso.line([a, b + db / 2, 0.2 + h], [a + da, b + db / 2, 0.2 + h], { w: 1.6 });
+        iso.line([a + da / 2, b + db, 0.2], [a + da / 2, b + db, 0.2 + h], { w: 1.6 });
+        iso.at([a + da / 2, b + db / 2, 0.2 + h], (s, [x, y], u) => {
+          s.stroke(s.ellipsePts(x - 0.012 * u, y - 0.008 * u, 0.012 * u, 0.008 * u), { closed: true, w: 1.3, mask: true });
+          s.stroke(s.ellipsePts(x + 0.012 * u, y - 0.008 * u, 0.012 * u, 0.008 * u), { closed: true, w: 1.3, mask: true });
+        });
       });
     },
     (iso) => {
-      // round dinner table with a long cloth, plates and a centrepiece
-      iso.cyl(0.56, 0.56, 0, 0.16, 0.26, WHITE, { r2: 0.15, color: REC.cloth });
-      for (const a of [0.4, 1.9, 3.4, 4.9]) {
-        const px = 0.56 + Math.cos(a) * 0.1;
-        const py = 0.56 + Math.sin(a) * 0.1;
-        iso.disc(px, py, 0.262, 0.03, WHITE, { w: 1.3 });
-      }
-      iso.cyl(0.56, 0.56, 0.26, 0.02, 0.06, WHITE, { color: REC.glass });
-      iso.at([0.56, 0.56, 0.32], (s, [x, y], u) => {
-        for (const [dx, dy] of [
-          [-0.025, 0],
-          [0.025, -0.005],
-          [0, -0.025],
+      // round dinner table with gold chairs, plates, glasses and a tall centrepiece
+      const TX = 0.62;
+      const TY = 0.74;
+      const chair = (a: number, b: number, ang: number) => {
+        const ca = TX + Math.cos(ang) * 0.21;
+        const cb = TY + Math.sin(ang) * 0.21;
+        for (const [da, db] of [
+          [-0.025, -0.025],
+          [0.025, -0.025],
+          [-0.025, 0.025],
+          [0.025, 0.025],
         ])
-          flower(s, x + dx * u, y + dy * u, 0.01 * u, "#f7ccd6", true);
+          iso.line([ca + da, cb + db, 0], [ca + da, cb + db, 0.13], { w: 1.8 });
+        iso.box(ca - 0.032, cb - 0.032, 0.13, 0.064, 0.064, 0.018, WHITE, { color: GOLD });
+        // back on the side away from the table
+        const ba = ca + Math.cos(ang) * 0.03;
+        const bb = cb + Math.sin(ang) * 0.03;
+        const pa = -Math.sin(ang) * 0.028;
+        const pb = Math.cos(ang) * 0.028;
+        iso.box(Math.min(ba - pa, ba + pa) - 0.006, Math.min(bb - pb, bb + pb) - 0.006, 0.148, Math.abs(2 * pa) + 0.012, Math.abs(2 * pb) + 0.012, 0.15, WHITE, { color: GOLD });
+        return [a, b];
+      };
+      // chairs behind the table first
+      chair(0, 0, Math.PI * 1.25);
+      chair(0, 0, Math.PI * 0.75);
+      chair(0, 0, Math.PI * 1.75);
+      // the table
+      iso.cyl(TX, TY, 0, 0.15, 0.25, WHITE, { r2: 0.14, color: REC.cloth });
+      for (const a of [0.2, 1.8, 3.4, 5.0]) {
+        const px = TX + Math.cos(a) * 0.095;
+        const py = TY + Math.sin(a) * 0.095;
+        iso.disc(px, py, 0.252, 0.028, WHITE, { w: 1.3 });
+        iso.cyl(px + Math.cos(a + 0.6) * 0.04, py + Math.sin(a + 0.6) * 0.04, 0.25, 0.008, 0.035, WHITE, { r2: 0.012, color: REC.glass });
+      }
+      iso.cyl(TX, TY, 0.25, 0.014, 0.1, WHITE, { r2: 0.02, color: REC.glass });
+      iso.at([TX, TY, 0.35], (s, [x, y], u) => {
+        for (const [dx, dy] of [
+          [-0.03, 0],
+          [0.03, -0.005],
+          [0, -0.03],
+          [-0.015, -0.018],
+          [0.018, -0.022],
+        ])
+          flower(s, x + dx * u, y + dy * u, 0.011 * u, REC.blush, true);
+        almondLeaf(s, x - 0.05 * u, y + 0.01 * u, 0.018 * u, -1.2, LEAF, true);
+        almondLeaf(s, x + 0.05 * u, y + 0.01 * u, 0.018 * u, 1.2, LEAF, true);
       });
+      // the chair in front
+      chair(0, 0, Math.PI * 0.25);
     },
   ]),
 };
