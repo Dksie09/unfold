@@ -7,7 +7,8 @@
 
 export const N = 4; // rooms (must match ROOMS in invite.ts: one per wedding event)
 export const L = 1; // page width (spine to outer edge)
-export const H = 1; // page height
+export const H = 1; // page height (the walls)
+export const G = 0.4; // height of the peaked top above the walls (pages are house-shaped)
 export const RIGHT_ANGLE = Math.PI / 2;
 
 export const smooth = (x: number) => {

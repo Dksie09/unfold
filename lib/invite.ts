@@ -1034,16 +1034,13 @@ export const ROOMS: Room[] = [haldi, wedding, reception, party];
 
 export function drawFrontCover(s: Sketch) {
   if (look.color) s.washAll(tint("#fbe9e1"), 1);
-  s.rect(0.06, 0.06, 0.88, 0.88, { w: 3 });
-  s.rect(0.09, 0.09, 0.82, 0.82, { w: 1.4, alpha: 0.8 });
+  // the page outline is the border now (house-shaped); flowers sit in its lower corners
   for (const [x, y] of [
-    [0.09, 0.09],
-    [0.91, 0.09],
     [0.09, 0.91],
     [0.91, 0.91],
   ])
-    flower(s, x, y, 0.016, MARIGOLD[0]);
-  garland(s, 0.14, 0.86, 0.12, 0.07, 0.013);
+    flower(s, x, y, 0.018, MARIGOLD[0]);
+  garland(s, 0.1, 0.9, 0.06, 0.08, 0.013);
   s.text(WEDDING.hosts, 0.5, 0.3, 0.035, { weight: 500 });
   s.text(WEDDING.couple[0], 0.5, 0.42, 0.11);
   s.text("&", 0.5, 0.52, 0.06, { weight: 500 });
@@ -1060,6 +1057,5 @@ export function drawFrontCover(s: Sketch) {
 
 export function drawBackCover(s: Sketch) {
   if (look.color) s.washAll(tint("#fbe9e1"), 1);
-  s.rect(0.06, 0.06, 0.88, 0.88, { w: 3 });
   s.text("with love", 0.5, 0.5, 0.06, { weight: 500 });
 }
