@@ -338,90 +338,6 @@ const haldi: Room = {
   ]),
 };
 
-const SAN = { wall: "#a3a7e0", wallSoft: "#5960a8", floor: "#9296d2", tile: "#b3b6e8", accent: "#c8c4f3", speaker: "#3b3b52", drum: "#f3c5cf" };
-
-const party: Room = {
-  name: "party",
-  mood: ev("party").tagline,
-  left(s) {
-    if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
-    // stage backdrop of fairy-light strands
-    for (let x = 0.08; x < 0.95; x += 0.06) {
-      s.line(x, 0.04, x, 0.66, { w: 1, alpha: 0.6 });
-      for (let y = 0.08; y < 0.66; y += 0.06) {
-        if (look.color) s.glow(x, y, 0.03, "#ffd56b", 0.5);
-        s.blob(x, y, 0.006, 0.008, tint("#fff1b0"), { w: 1 });
-      }
-    }
-    // banner
-    const banner = s.rectPts(0.2, 0.26, 0.6, 0.14);
-    s.sticker(banner, 5, 0.25, tint("#f7ccd6"));
-    s.stroke(banner, { closed: true, w: 2.4 });
-    s.text("let's dance", 0.5, 0.33, 0.08);
-    // music notes
-    for (const [x, y] of [
-      [0.12, 0.76],
-      [0.85, 0.72],
-    ]) {
-      s.blob(x, y, 0.015, 0.012, tint("#fff1b0"), { w: 1.5 });
-      s.line(x + 0.014, y, x + 0.014, y - 0.07, { w: 1.6 });
-      s.line(x + 0.014, y - 0.07, x + 0.04, y - 0.055, { w: 1.6 });
-    }
-  },
-  right(s) {
-    if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
-    fairyLights(s, 0.02, 0.98, 0.06, 0.06);
-    inviteCard(s, ev("party"), 0.28, 0.16, 0.44, 0.46, SAN.accent);
-    for (const [x, y] of [
-      [0.14, 0.2],
-      [0.86, 0.36],
-      [0.12, 0.6],
-    ])
-      sparkle(s, x, y, 0.025);
-  },
-  floor(s) {
-    if (look.color) s.washAll(tint(SAN.floor, "#ffffff"), 1);
-    const n = 6;
-    for (let i = 0; i < n; i++)
-      for (let j = 0; j < n; j++)
-        if ((i + j) % 2) {
-          const sq = [F(i / n, j / n), F((i + 1) / n, j / n), F((i + 1) / n, (j + 1) / n), F(i / n, (j + 1) / n)];
-          if (look.color) s.fill(sq, tint(SAN.tile, "#ffffff"), { alpha: 1, jitter: 0.2 });
-          else s.hatch(sq, 0.02, -0.8, 1, 0.22);
-        }
-    tiles(s, n, 0.5);
-    if (look.color) {
-      s.glow(...F(0.5, 0.5), 0.35, "#ffd56b", 0.25);
-      s.glow(...F(0.3, 0.7), 0.2, "#f7ccd6", 0.3);
-    }
-  },
-  popups: isoLayers([
-    (iso) => {
-      // speakers in the corner and a dholak
-      iso.box(0.04, 0.04, 0, 0.12, 0.12, 0.34, WHITE, { color: SAN.speaker });
-      iso.at([0.1, 0.16, 0.24], (s, [x, y], u) => {
-        s.circle(x, y, 0.035 * u, { w: 1.8, mask: true });
-        s.circle(x, y, 0.012 * u, { w: 1.4, mask: true });
-      });
-      iso.at([0.1, 0.16, 0.1], (s, [x, y], u) => s.circle(x, y, 0.025 * u, { w: 1.6, mask: true }));
-      iso.box(0.7, 0.04, 0, 0.12, 0.12, 0.3, WHITE, { color: SAN.speaker });
-      iso.at([0.76, 0.16, 0.2], (s, [x, y], u) => s.circle(x, y, 0.035 * u, { w: 1.8, mask: true }));
-    },
-    (iso) => {
-      // mic stand
-      iso.disc(0.42, 0.36, 0, 0.04, tint("#cfcfd8"), { w: 1.6 });
-      iso.line([0.42, 0.36, 0], [0.42, 0.36, 0.42], { w: 2.4 });
-      iso.line([0.42, 0.36, 0.42], [0.46, 0.4, 0.46], { w: 2.4 });
-      iso.at([0.47, 0.41, 0.47], (s, [x, y], u) => s.blob(x, y, 0.016 * u, 0.02 * u, tint("#cfcfd8"), { w: 1.6, mask: true }));
-      // dholak on the floor
-      iso.cyl(0.62, 0.5, 0, 0.06, 0.14, WHITE, { color: SAN.drum });
-      iso.at([0.62, 0.5, 0.07], (s, [x, y], u) => {
-        for (let k = -2; k <= 2; k++) s.line(x + k * 0.02 * u, y - 0.06 * u, x + k * 0.025 * u, y + 0.06 * u, { w: 1, mask: true });
-      });
-    },
-  ]),
-};
-
 const WED = { wall: "#f9e1dc", drape: "#e8857e", drape2: "#f5c7a9", floor: "#f2e2cc", accent: "#f6b7aa", pillar: GOLD, seat: "#e8857e" };
 
 /** Draped fabric hanging in swags across the top of a wall. */
@@ -844,7 +760,274 @@ const reception: Room = {
   ]),
 };
 
-export const ROOMS: Room[] = [haldi, party, wedding, reception];
+const SAN = {
+  wall: "#a3a7e0",
+  floor: "#9296d2",
+  tile: "#b3b6e8",
+  accent: "#c8c4f3",
+  speaker: "#3b3b52",
+  drum: "#f3c5cf",
+  pink: "#ff9ccc",
+  cyan: "#9fe6ff",
+  lime: "#dcf59a",
+  sun: "#ffe08a",
+  booth: "#5a5f9e",
+  bar: "#f3c5cf",
+};
+const CONFETTI = [SAN.pink, SAN.cyan, SAN.lime, SAN.sun, "#ffffff"];
+
+/** Paper confetti: little rectangles and dots at random angles. */
+function confetti(s: Sketch, n: number, x0 = 0.04, x1 = 0.96, y0 = 0.04, y1 = 0.96, floor = false) {
+  for (let i = 0; i < n; i++) {
+    let x = x0 + s.r() * (x1 - x0);
+    let y = y0 + s.r() * (y1 - y0);
+    if (floor) [x, y] = F(x, y);
+    const c = tint(CONFETTI[i % CONFETTI.length]);
+    if (i % 3 === 0) s.blob(x, y, 0.006, 0.006, c, { w: 1 });
+    else {
+      const a = s.r() * Math.PI;
+      const dx = Math.cos(a) * 0.009;
+      const dy = Math.sin(a) * 0.009;
+      const p: Pt[] = [
+        [x - dx, y - dy],
+        [x + dx, y + dy],
+        [x + dx + dy * 0.5, y + dy - dx * 0.5],
+        [x - dx + dy * 0.5, y - dy - dx * 0.5],
+      ];
+      s.sticker(p, 0.5, 0, c);
+      s.stroke(p, { closed: true, w: 1 });
+    }
+  }
+}
+
+/** Triangle pennant bunting sagging between two points. */
+function bunting(s: Sketch, x1: number, x2: number, y: number, sag: number, n: number) {
+  const at = (t: number): Pt => [x1 + (x2 - x1) * t, y + Math.sin(t * Math.PI) * sag];
+  s.stroke(Array.from({ length: 21 }, (_, i) => at(i / 20)), { w: 1.6 });
+  for (let i = 0; i < n; i++) {
+    const a = at((i + 0.15) / n);
+    const b = at((i + 0.85) / n);
+    const tip: Pt = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + 0.07];
+    const p: Pt[] = [a, b, tip];
+    s.sticker(p, 2, 0.12, tint(CONFETTI[i % 4]));
+    s.stroke(p, { closed: true, w: 1.5 });
+  }
+}
+
+/** A mirrored disco ball on a string, throwing little light flecks. */
+function discoBall(s: Sketch, x: number, y: number, r: number) {
+  s.line(x, 0, x, y - r, { w: 1.4 });
+  if (look.color) {
+    s.glow(x, y, r * 3.2, "#ffffff", 0.35);
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2 + 0.3;
+      const d = r * (2.2 + (i % 3) * 0.9);
+      s.glow(x + Math.cos(a) * d, y + Math.sin(a) * d * 0.8, 0.018, CONFETTI[i % 4], 0.7);
+    }
+  }
+  const ball = s.ellipsePts(x, y, r, r);
+  s.sticker(ball, 3, 0.2, tint("#e6e8f5"));
+  s.stroke(ball, { closed: true, w: 2 });
+  for (const k of [-0.6, -0.2, 0.2, 0.6]) {
+    s.stroke(s.ellipsePts(x, y + k * r, r * Math.sqrt(1 - k * k), r * 0.12, 0, Math.PI, 10), { w: 0.9, alpha: 0.7 });
+    s.stroke(s.ellipsePts(x + k * r, y, r * 0.14, r * Math.sqrt(1 - k * k), -Math.PI / 2, Math.PI / 2, 10), { w: 0.9, alpha: 0.7 });
+  }
+  s.line(x - r * 0.45, y - r * 0.5, x - r * 0.25, y - r * 0.6, { w: 1.6, alpha: 0.8 });
+  for (const [dx, dy, rr] of [
+    [-1.9, -0.6, 0.02],
+    [1.8, 0.4, 0.024],
+    [1.3, -1.4, 0.016],
+  ])
+    sparkle(s, x + dx * r, y + dy * r, rr);
+}
+
+/** Hand-lettered neon sign: a soft coloured glow behind doubled lettering. */
+function neon(s: Sketch, str: string, x: number, y: number, size: number, c: string, rot = 0) {
+  if (look.color) {
+    s.glow(x, y, size * 2.6, c, 0.55);
+    s.glow(x, y, size * 1.4, c, 0.5);
+  }
+  s.text(str, x, y, size, { rotate: rot });
+}
+
+const party: Room = {
+  name: "party",
+  mood: ev("party").tagline,
+  left(s) {
+    if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
+    // spotlight beams from the top corners
+    if (look.color)
+      for (const [x0, x1, c] of [
+        [0.98, 0.62, SAN.pink],
+        [0.02, 0.4, SAN.cyan],
+      ] as const)
+        for (let k = 0; k < 6; k++) s.glow(x0 + (x1 - x0) * (k / 5), 0.12 + k * 0.15, 0.05 + k * 0.02, c, 0.22);
+    bunting(s, 0.0, 0.52, 0.04, 0.07, 6);
+    bunting(s, 0.48, 1.0, 0.04, 0.06, 6);
+    discoBall(s, 0.64, 0.26, 0.07);
+    neon(s, "let's dance!", 0.66, 0.54, 0.075, SAN.pink, -0.06);
+    // a neon "cheers" over the bar
+    neon(s, "cheers", 0.25, 0.44, 0.06, SAN.cyan, 0.04);
+    for (const [x, y] of [
+      [0.14, 0.38],
+      [0.36, 0.39],
+    ]) {
+      const glass: Pt[] = [[x - 0.018, y - 0.03], [x + 0.018, y - 0.03], [x, y]];
+      s.stroke(glass, { closed: true, w: 1.5 });
+      s.line(x, y, x, y + 0.03, { w: 1.5 });
+      s.line(x - 0.012, y + 0.03, x + 0.012, y + 0.03, { w: 1.5 });
+    }
+    // music notes floating up
+    for (const [x, y] of [
+      [0.9, 0.74],
+      [0.47, 0.64],
+      [0.86, 0.4],
+    ]) {
+      s.blob(x, y, 0.015, 0.012, tint(SAN.sun), { w: 1.5 });
+      s.line(x + 0.014, y, x + 0.014, y - 0.07, { w: 1.6 });
+      s.line(x + 0.014, y - 0.07, x + 0.04, y - 0.055, { w: 1.6 });
+    }
+    confetti(s, 40, 0.03, 0.97, 0.12, 0.95);
+  },
+  right(s) {
+    if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
+    fairyLights(s, 0.02, 0.98, 0.06, 0.06);
+    inviteCard(s, ev("party"), 0.3, 0.16, 0.4, 0.44, SAN.accent);
+    // a photo-booth strip taped up next to the card
+    const strip = s.rectPts(0.08, 0.2, 0.11, 0.42);
+    s.sticker(strip, 3, 0.2, tint("#fffaf0"));
+    s.stroke(strip, { closed: true, w: 1.8 });
+    for (let k = 0; k < 3; k++) {
+      const y = 0.23 + k * 0.13;
+      s.fill(s.rectPts(0.095, y, 0.08, 0.1), tint(CONFETTI[k]), { alpha: 0.6, jitter: 0 });
+      s.rect(0.095, y, 0.08, 0.1, { w: 1.2 });
+      s.circle(0.12, y + 0.05, 0.013, { w: 1.1 });
+      s.circle(0.15, y + 0.045, 0.011, { w: 1.1 });
+      s.stroke(s.ellipsePts(0.135, y + 0.068, 0.01, 0.006, 0, Math.PI, 6), { w: 1 });
+    }
+    s.line(0.11, 0.19, 0.16, 0.21, { w: 4, alpha: 0.3 });
+    balloons(s, 0.86, 0.3);
+    for (const [x, y] of [
+      [0.78, 0.6],
+      [0.24, 0.72],
+      [0.92, 0.72],
+    ])
+      sparkle(s, x, y, 0.025);
+    confetti(s, 30, 0.03, 0.97, 0.62, 0.96);
+  },
+  floor(s) {
+    if (look.color) s.washAll(tint(SAN.floor, "#ffffff"), 1);
+    const n = 6;
+    const lit = [SAN.pink, SAN.cyan, SAN.lime, SAN.sun];
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++) {
+        const sq = [F(i / n, j / n), F((i + 1) / n, j / n), F((i + 1) / n, (j + 1) / n), F(i / n, (j + 1) / n)];
+        if ((i * 7 + j * 3) % 5 === 0 && i > 1 && j > 1) {
+          if (look.color) s.fill(sq, tint(lit[(i + j) % 4], "#ffffff"), { alpha: 0.9, jitter: 0.2 });
+        } else if ((i + j) % 2) {
+          if (look.color) s.fill(sq, tint(SAN.tile, "#ffffff"), { alpha: 1, jitter: 0.2 });
+          else s.hatch(sq, 0.02, -0.8, 1, 0.22);
+        }
+      }
+    tiles(s, n, 0.5);
+    if (look.color) {
+      s.glow(...F(0.6, 0.6), 0.35, "#ffd56b", 0.25);
+      s.glow(...F(0.45, 0.75), 0.2, SAN.pink, 0.35);
+      s.glow(...F(0.75, 0.45), 0.2, SAN.cyan, 0.35);
+    }
+    s.shadow([F(0.2, 0.04), F(0.58, 0.04), F(0.58, 0.2), F(0.2, 0.2)], 0.22, 14);
+    s.shadow([F(0.04, 0.6), F(0.2, 0.6), F(0.2, 0.92), F(0.04, 0.92)], 0.22, 14);
+    confetti(s, 60, 0.25, 0.97, 0.25, 0.97, true);
+  },
+  popups: isoLayers([
+    (iso) => {
+      // speakers either side of the dj booth
+      for (const [a, h] of [
+        [0.05, 0.4],
+        [0.62, 0.34],
+      ]) {
+        iso.box(a, 0.04, 0, 0.12, 0.12, h, WHITE, { color: SAN.speaker });
+        iso.at([a + 0.06, 0.16, h * 0.68], (s, [x, y], u) => {
+          s.circle(x, y, 0.035 * u, { w: 1.8, mask: true });
+          s.circle(x, y, 0.012 * u, { w: 1.4, mask: true });
+        });
+        iso.at([a + 0.06, 0.16, h * 0.28], (s, [x, y], u) => s.circle(x, y, 0.025 * u, { w: 1.6, mask: true }));
+      }
+      // dj booth with two decks, a laptop and headphones
+      iso.box(0.2, 0.05, 0, 0.38, 0.13, 0.26, WHITE, { color: SAN.booth });
+      iso.at([0.39, 0.18, 0.13], (s, [x, y], u) => {
+        if (look.color) s.glow(x, y, 0.07 * u, SAN.pink, 0.6);
+        s.text("a&m", x, y, 0.045 * u, { rotate: -0.45 });
+      });
+      for (const a of [0.27, 0.5]) {
+        iso.disc(a, 0.115, 0.26, 0.045, tint("#2f3146"), { w: 1.4 });
+        iso.disc(a, 0.115, 0.262, 0.012, tint(SAN.pink), { w: 1.1 });
+      }
+      iso.face(
+        [
+          [0.36, 0.08, 0.26],
+          [0.43, 0.08, 0.26],
+          [0.43, 0.08, 0.33],
+          [0.36, 0.08, 0.33],
+        ],
+        tint("#dfe3f7"),
+        { w: 1.6 },
+      );
+      iso.at([0.44, 0.15, 0.27], (s, [x, y], u) => {
+        s.stroke(s.ellipsePts(x, y, 0.02 * u, 0.018 * u, Math.PI, Math.PI * 2, 10), { w: 1.6, mask: true });
+        s.blob(x - 0.02 * u, y, 0.007 * u, 0.01 * u, tint(SAN.cyan), { w: 1.2, mask: true });
+        s.blob(x + 0.02 * u, y, 0.007 * u, 0.01 * u, tint(SAN.cyan), { w: 1.2, mask: true });
+      });
+      // the bar along the left wall, with bottles and glasses
+      iso.box(0.04, 0.6, 0, 0.15, 0.32, 0.27, WHITE, { color: SAN.bar });
+      iso.box(0.03, 0.59, 0.27, 0.17, 0.34, 0.02, WHITE, { color: "#fffaf0" });
+      for (const [b, c, h] of [
+        [0.64, SAN.lime, 0.09],
+        [0.69, SAN.pink, 0.11],
+        [0.74, SAN.cyan, 0.08],
+      ] as const) {
+        iso.cyl(0.09, b, 0.29, 0.014, h, WHITE, { r2: 0.014, color: c });
+        iso.cyl(0.09, b, 0.29 + h, 0.006, 0.03, WHITE, { r2: 0.005, color: c });
+      }
+      for (const b of [0.8, 0.86])
+        iso.at([0.12, b, 0.29], (s, [x, y], u) => {
+          const g: Pt[] = [[x - 0.014 * u, y - 0.04 * u], [x + 0.014 * u, y - 0.04 * u], [x, y - 0.018 * u]];
+          s.shape(g, tint(SAN.sun), { mask: true, w: 1.2 });
+          s.line(x, y - 0.018 * u, x, y, { w: 1.1, mask: true });
+          s.line(x - 0.008 * u, y, x + 0.008 * u, y, { w: 1.1, mask: true });
+        });
+    },
+    (iso) => {
+      // a bunch of balloons tied to a weight, and a mic stand on the floor
+      iso.cyl(0.86, 0.3, 0, 0.025, 0.03, WHITE, { color: SAN.sun });
+      iso.at([0.86, 0.3, 0.03], (s, [x, y], u) => {
+        const list: [number, number, string][] = [
+          [-0.05, -0.42, SAN.pink],
+          [0.04, -0.46, SAN.cyan],
+          [0.0, -0.52, SAN.sun],
+          [0.06, -0.38, SAN.lime],
+          [-0.03, -0.35, "#ffffff"],
+        ];
+        for (const [dx, dy] of list) s.stroke([[x, y], [x + dx * 0.4 * u, y + dy * 0.5 * u], [x + dx * u, y + (dy + 0.03) * u]], { w: 1, mask: true });
+        for (const [dx, dy, c] of list) {
+          s.shape(s.ellipsePts(x + dx * u, y + dy * u, 0.03 * u, 0.037 * u), tint(c), { mask: true, w: 1.6 });
+          s.line(x + (dx - 0.012) * u, y + (dy - 0.016) * u, x + (dx - 0.006) * u, y + (dy - 0.024) * u, { w: 1.4, alpha: 0.7, mask: true });
+        }
+      });
+      iso.disc(0.5, 0.36, 0, 0.04, tint("#cfcfd8"), { w: 1.6 });
+      iso.line([0.5, 0.36, 0], [0.5, 0.36, 0.42], { w: 2.4 });
+      iso.line([0.5, 0.36, 0.42], [0.54, 0.4, 0.46], { w: 2.4 });
+      iso.at([0.55, 0.41, 0.47], (s, [x, y], u) => s.blob(x, y, 0.016 * u, 0.02 * u, tint("#cfcfd8"), { w: 1.6, mask: true }));
+      // a dholak left on the dance floor
+      iso.cyl(0.3, 0.5, 0, 0.06, 0.14, WHITE, { color: SAN.drum });
+      iso.at([0.3, 0.5, 0.07], (s, [x, y], u) => {
+        for (let k = -2; k <= 2; k++) s.line(x + k * 0.02 * u, y - 0.06 * u, x + k * 0.025 * u, y + 0.06 * u, { w: 1, mask: true });
+      });
+    },
+  ]),
+};
+
+export const ROOMS: Room[] = [haldi, wedding, reception, party];
 
 // ---------------------------------------------------------------------------
 // covers

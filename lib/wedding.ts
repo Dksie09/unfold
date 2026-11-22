@@ -29,16 +29,6 @@ export const WEDDING = {
       dress: "yellow, and clothes you don't mind ruining",
     },
     {
-      key: "party",
-      name: "the party",
-      tagline: "the dance floor is calling",
-      start: "2027-02-12T19:00",
-      end: "2027-02-12T23:59",
-      venue: "the lawns, neem haveli",
-      address: "neem haveli, amer road, jaipur",
-      dress: "glitter, sequins, dancing shoes",
-    },
-    {
       key: "wedding",
       name: "the wedding",
       tagline: "seven steps, one forever",
@@ -57,6 +47,16 @@ export const WEDDING = {
       venue: "the grand hall, rambagh",
       address: "rambagh, bhawani singh road, jaipur",
       dress: "black tie, ivory and champagne",
+    },
+    {
+      key: "party",
+      name: "the party",
+      tagline: "the dance floor is calling",
+      start: "2027-02-15T20:00",
+      end: "2027-02-16T02:00",
+      venue: "the lawns, neem haveli",
+      address: "neem haveli, amer road, jaipur",
+      dress: "glitter, sequins, dancing shoes",
     },
   ] satisfies WeddingEvent[],
 };
