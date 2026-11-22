@@ -1004,10 +1004,10 @@ body {
     radial-gradient(circle at 0 100%, #f4a43b 0 9px, transparent 10px), radial-gradient(circle at 100% 100%, #f4a43b 0 9px, transparent 10px);
 }
 
-.ev-roka .ev-inner { background-color: #fdf0ef; }
+
 .ev-haldi .ev-inner { background-color: #fff6d6; }
-.ev-mehendi .ev-inner { background-color: #eef7e8; }
-.ev-sangeet .ev-inner { background-color: #eeeefb; }
+
+.ev-party .ev-inner { background-color: #eeeefb; }
 .ev-wedding .ev-inner { background-color: #fdeae6; }
 .ev-reception .ev-inner { background-color: #fbf6ec; }
 

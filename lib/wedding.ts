@@ -19,16 +19,6 @@ export const WEDDING = {
   rsvpBy: "15 jan 2027",
   events: [
     {
-      key: "roka",
-      name: "the roka",
-      tagline: "where it all becomes official",
-      start: "2027-02-07T18:00",
-      end: "2027-02-07T22:00",
-      venue: "the sharma home",
-      address: "14 civil lines, jaipur",
-      dress: "pastels",
-    },
-    {
       key: "haldi",
       name: "haldi",
       tagline: "come get a little yellow",
@@ -39,18 +29,8 @@ export const WEDDING = {
       dress: "yellow, and clothes you don't mind ruining",
     },
     {
-      key: "mehendi",
-      name: "mehendi",
-      tagline: "henna, chai and long afternoons",
-      start: "2027-02-11T16:00",
-      end: "2027-02-11T20:00",
-      venue: "the garden, neem haveli",
-      address: "neem haveli, amer road, jaipur",
-      dress: "greens and florals",
-    },
-    {
-      key: "sangeet",
-      name: "sangeet",
+      key: "party",
+      name: "the party",
       tagline: "the dance floor is calling",
       start: "2027-02-12T19:00",
       end: "2027-02-12T23:59",

@@ -135,234 +135,214 @@ function cushion(iso: Iso, x: number, y: number, size: number, color: string) {
 // ---------------------------------------------------------------------------
 // the rooms
 
-const ROKA = { wall: "#fbe6e4", floor: "#f0dcc0", accent: "#f7ccd6", sofa: "#f3c5cf", glass: "#dcebfa" };
+const HALDI = { wall: "#fff1c2", floor: "#f7ead2", accent: "#f7d77a", wood: "#e2c49a", brass: "#f0cf6e", paste: "#f6c445", water: "#cfe6f2", pot: "#e9a07c", cushion: "#f7a8a0" };
 
-const roka: Room = {
-  name: "roka",
-  mood: ev("roka").tagline,
-  left(s) {
-    wash(s, ROKA.wall);
-    // arched window with clouds, fairy lights and a garland
-    const win: Pt[] = [[0.25, 0.62], ...s.ellipsePts(0.45, 0.32, 0.2, 0.14, Math.PI, Math.PI * 2, 18), [0.65, 0.62]];
-    s.sticker(win, 7, 0.2, tint(ROKA.glass));
-    s.stroke(win, { closed: true, w: 2.8 });
-    s.line(0.45, 0.18, 0.45, 0.62, { w: 2.2 });
-    s.line(0.25, 0.42, 0.65, 0.42, { w: 2.2 });
-    cloud(s, 0.36, 0.3, 0.02);
-    cloud(s, 0.55, 0.5, 0.024, true);
-    garland(s, 0.22, 0.68, 0.17, 0.06);
-    fairyLights(s, 0.05, 0.95, 0.06, 0.05);
-    couplePhoto(s, 0.05, 0.38, 0.1, 0.12, -0.05);
-    couplePhoto(s, 0.74, 0.3, 0.12, 0.14, 0.04);
-  },
-  right(s) {
-    wash(s, ROKA.wall);
-    garland(s, 0.02, 0.98, 0.06, 0.05);
-    inviteCard(s, ev("roka"), 0.28, 0.16, 0.44, 0.46, ROKA.accent);
-    sparkle(s, 0.18, 0.3, 0.03);
-    sparkle(s, 0.84, 0.48, 0.022);
-  },
-  floor(s) {
-    if (look.color) s.washAll(tint(ROKA.floor), 1);
-    planks(s, tint(ROKA.floor), 8);
-    s.shadow([F(0.03, 0.28), F(0.3, 0.28), F(0.3, 0.86), F(0.03, 0.86)], 0.24, 16);
-    scallopRug(s, [F(0.36, 0.36), F(0.86, 0.36), F(0.86, 0.86), F(0.36, 0.86)], ROKA.accent, 12);
-    petals(s, 18, ["#f7ccd6", "#f6a99a"]);
-  },
-  popups: isoLayers([
-    (iso) => {
-      // sofa against the left wall
-      iso.box(0.03, 0.3, 0, 0.24, 0.56, 0.16, WHITE, { color: ROKA.sofa });
-      iso.box(0.02, 0.3, 0.16, 0.07, 0.56, 0.2, WHITE, { color: ROKA.sofa });
-      iso.box(0.03, 0.26, 0, 0.24, 0.05, 0.26, WHITE, { color: ROKA.sofa });
-      iso.box(0.03, 0.85, 0, 0.24, 0.05, 0.26, WHITE, { color: ROKA.sofa });
-      iso.box(0.09, 0.36, 0.16, 0.06, 0.12, 0.11, WHITE, { color: "#fff3b5" });
-      iso.box(0.09, 0.66, 0.16, 0.06, 0.12, 0.11, WHITE, { color: "#dbe8fb" });
-    },
-    (iso) => {
-      // coffee table with the ring box and a box of mithai
-      for (const [a, b] of [
-        [0.44, 0.48],
-        [0.7, 0.48],
-        [0.44, 0.7],
-        [0.7, 0.7],
-      ])
-        iso.line([a, b, 0], [a, b, 0.17], { w: 2.4 });
-      iso.box(0.42, 0.46, 0.17, 0.3, 0.26, 0.025, WHITE, { color: "#ead3b2" });
-      const T = 0.195;
-      iso.box(0.48, 0.52, T, 0.07, 0.07, 0.04, WHITE, { color: "#f6a99a" });
-      iso.face(
-        [
-          [0.48, 0.52, T + 0.04],
-          [0.55, 0.52, T + 0.04],
-          [0.55, 0.52, T + 0.1],
-          [0.48, 0.52, T + 0.1],
-        ],
-        tint("#f6a99a"),
-        { w: 1.8 },
-      );
-      iso.at([0.515, 0.56, T + 0.05], (s, [x, y], u) => {
-        s.circle(x, y - 0.012 * u, 0.012 * u, { w: 2, mask: true });
-        s.blob(x, y - 0.026 * u, 0.006 * u, 0.006 * u, tint("#dbe8fb"), { w: 1.3, mask: true });
-      });
-      iso.box(0.6, 0.55, T, 0.12, 0.1, 0.035, WHITE, { color: GOLD });
-      iso.at([0.66, 0.6, T + 0.035], (s, [x, y], u) => {
-        for (const [dx, dy] of [
-          [-0.025, 0],
-          [0.0, -0.01],
-          [0.025, 0],
-        ])
-          s.blob(x + dx * u, y + dy * u, 0.012 * u, 0.009 * u, tint("#fff3cf"), { w: 1.3, mask: true });
-      });
-    },
-  ]),
-};
+/** A long banana leaf with a midrib and side veins, growing from (x, y). */
+function bananaLeaf(s: Sketch, x: number, y: number, len: number, ang: number, w = 0.045, onCard = false) {
+  const dx = Math.sin(ang);
+  const dy = -Math.cos(ang);
+  const nx = -dy;
+  const ny = dx;
+  const side = (sgn: number) =>
+    Array.from({ length: 11 }, (_, i) => {
+      const t = i / 10;
+      const bulge = Math.sin(t * Math.PI) * w * (t < 0.5 ? 1 : 0.85);
+      return [x + dx * len * t + nx * bulge * sgn, y + dy * len * t + ny * bulge * sgn + t * t * len * 0.12] as Pt;
+    });
+  const pts: Pt[] = [...side(1), ...side(-1).reverse()];
+  if (onCard) s.shape(pts, tint(LEAF), { mask: true, w: 1.4 });
+  else {
+    s.sticker(pts, 2, 0.12, tint(LEAF));
+    s.stroke(pts, { closed: true, w: 1.6 });
+  }
+  const rib = side(0);
+  s.stroke(rib, { w: 1.2, mask: onCard });
+  for (let i = 2; i < 9; i++) {
+    const [px, py] = rib[i];
+    for (const sgn of [1, -1]) s.line(px, py, px + (nx * sgn + dx * 0.5) * w * 0.7, py + (ny * sgn + dy * 0.5) * w * 0.7 + 0.004, { w: 0.9, alpha: 0.7, mask: onCard });
+  }
+}
 
-const HALDI = { wall: "#fff1c2", floor: "#f7ead2", accent: "#f7d77a", wood: "#e2c49a", brass: "#f0cf6e", paste: "#f6c445" };
+/** A yellow haldi handprint. */
+function handprint(s: Sketch, x: number, y: number, r: number, rot: number) {
+  const c = Math.cos(rot);
+  const sn = Math.sin(rot);
+  const at = (dx: number, dy: number): Pt => [x + dx * c - dy * sn, y + dx * sn + dy * c];
+  const c0 = tint(HALDI.paste);
+  s.blob(...at(0, 0), r, r * 1.1, c0, { w: 1.2 });
+  const fingers: [number, number, number][] = [
+    [-0.75, -1.5, 0.5],
+    [-0.25, -1.85, 0.55],
+    [0.25, -1.8, 0.55],
+    [0.7, -1.45, 0.48],
+    [1.25, -0.2, 0.45],
+  ];
+  for (const [fx, fy, fr] of fingers) s.blob(...at(fx * r, fy * r), r * fr * 0.55, r * fr, c0, { w: 1.1 });
+}
 
 const haldi: Room = {
   name: "haldi",
   mood: ev("haldi").tagline,
   left(s) {
     wash(s, HALDI.wall);
-    toran(s, 0.0, 1.0, 0.05);
-    laris(s, [0.1, 0.18, 0.26, 0.34, 0.42, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9], 0.09, 0.32);
-    // an arched niche with a diya
-    const niche: Pt[] = [[0.38, 0.78], ...s.ellipsePts(0.48, 0.6, 0.1, 0.08, Math.PI, Math.PI * 2, 12), [0.58, 0.78]];
+    // a fringe of marigold strands along the top, over a mango-leaf toran
+    laris(s, Array.from({ length: 19 }, (_, i) => 0.04 + i * 0.05), 0.05, 0.2, 0.012);
+    toran(s, 0.0, 1.0, 0.04);
+    // banana leaves framing an arched niche with a diya
+    bananaLeaf(s, 0.22, 0.98, 0.5, -0.25, 0.05);
+    bananaLeaf(s, 0.28, 0.98, 0.42, 0.15, 0.045);
+    bananaLeaf(s, 0.78, 0.98, 0.5, 0.25, 0.05);
+    bananaLeaf(s, 0.72, 0.98, 0.42, -0.15, 0.045);
+    const niche: Pt[] = [[0.38, 0.8], [0.38, 0.6], ...s.ellipsePts(0.5, 0.6, 0.12, 0.12, Math.PI, Math.PI * 2, 14), [0.62, 0.8]];
     s.sticker(niche, 4, 0.2, tint("#f7e2b0"));
-    s.stroke(niche, { closed: true, w: 2.2 });
-    diya(s, 0.48, 0.76, 0.06);
+    s.stroke(niche, { closed: true, w: 2.4 });
+    garland(s, 0.38, 0.62, 0.5, 0.04, 0.011);
+    diya(s, 0.5, 0.78, 0.07);
+    diya(s, 0.42, 0.79, 0.04);
+    diya(s, 0.58, 0.79, 0.04);
+    // handprints left by the guests
+    for (const [x, y, r] of [
+      [0.08, 0.5, 0.2],
+      [0.13, 0.62, -0.3],
+      [0.9, 0.46, 0.35],
+      [0.86, 0.6, -0.1],
+    ])
+      handprint(s, x, y, 0.017, r);
   },
   right(s) {
     wash(s, HALDI.wall);
-    toran(s, 0.0, 1.0, 0.05);
+    toran(s, 0.0, 1.0, 0.04);
+    laris(s, [0.05, 0.1, 0.15, 0.85, 0.9, 0.95], 0.05, 0.5);
     inviteCard(s, ev("haldi"), 0.28, 0.16, 0.44, 0.46, HALDI.accent);
-    laris(s, [0.1, 0.18, 0.82, 0.9], 0.09, 0.4);
+    garland(s, 0.28, 0.72, 0.14, 0.03, 0.011);
+    for (const [x, y, r] of [
+      [0.32, 0.74, 0.3],
+      [0.4, 0.8, -0.2],
+      [0.62, 0.72, 0.1],
+      [0.7, 0.8, -0.35],
+    ])
+      handprint(s, x, y, 0.016, r);
   },
   floor(s) {
     if (look.color) s.washAll(tint(HALDI.floor), 1);
     tiles(s, 8, 0.4);
-    s.shadow(s.ellipsePts(...F(0.42, 0.42), 0.14, 0.12), 0.22, 14);
-    petals(s, 40);
+    // a rangoli of marigold petals with a diya at its heart
+    const [cx, cy] = F(0.7, 0.7);
+    const ringOf = (rx: number, n: number, c: string, size: number) => {
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        const p = s.ellipsePts(cx + Math.cos(a) * rx, cy + Math.sin(a) * rx * 0.5, size, size * 0.7);
+        s.sticker(p, 0.5, 0, tint(c));
+        s.stroke(p, { closed: true, w: 1 });
+      }
+    };
+    ringOf(0.13, 30, MARIGOLD[2], 0.01);
+    ringOf(0.1, 24, MARIGOLD[1], 0.01);
+    ringOf(0.07, 16, "#f7a8a0", 0.01);
+    ringOf(0.04, 10, MARIGOLD[0], 0.009);
+    s.stroke(s.ellipsePts(cx, cy, 0.155, 0.08), { closed: true, w: 1.3 });
+    s.blob(cx, cy, 0.014, 0.008, tint(HALDI.pot), { w: 1.3 });
+    s.shadow([F(0.28, 0.24), F(0.46, 0.24), F(0.46, 0.7), F(0.28, 0.7)], 0.2, 14);
+    s.shadow(s.ellipsePts(...F(0.7, 0.14), 0.1, 0.06), 0.2, 12);
+    petals(s, 50);
   },
   popups: isoLayers([
     (iso) => {
-      // basket of marigolds by the wall
-      iso.cyl(0.14, 0.14, 0, 0.08, 0.08, WHITE, { r2: 0.1, color: HALDI.wood });
-      iso.at([0.14, 0.14, 0.08], (s, [x, y], u) => {
-        for (let k = 0; k < 7; k++) {
-          const a = (k / 7) * Math.PI * 2;
+      // banana plant in a clay pot in the corner
+      iso.cyl(0.09, 0.09, 0, 0.05, 0.09, WHITE, { r2: 0.06, color: HALDI.pot });
+      iso.at([0.09, 0.09, 0.09], (s, [x, y], u) => {
+        for (const [ang, len] of [
+          [-0.7, 0.3],
+          [-0.2, 0.36],
+          [0.3, 0.33],
+          [0.8, 0.26],
+        ])
+          bananaLeaf(s, x, y, len * u, ang, 0.035 * u, true);
+      });
+      // basket of marigolds by the left wall
+      iso.cyl(0.1, 0.78, 0, 0.07, 0.07, WHITE, { r2: 0.09, color: HALDI.wood });
+      iso.at([0.1, 0.78, 0.07], (s, [x, y], u) => {
+        for (let k = 0; k < 8; k++) {
+          const a = (k / 8) * Math.PI * 2;
           s.blob(x + Math.cos(a) * 0.05 * u, y + Math.sin(a) * 0.025 * u - 0.012 * u, 0.02 * u, 0.017 * u, tint(MARIGOLD[k % 3]), { w: 1.3, mask: true });
         }
+        s.blob(x, y - 0.02 * u, 0.02 * u, 0.017 * u, tint(MARIGOLD[1]), { w: 1.3, mask: true });
+      });
+      // a brass urli by the right wall, with flowers floating in it
+      iso.cyl(0.7, 0.14, 0, 0.06, 0.05, WHITE, { r2: 0.1, color: HALDI.brass });
+      iso.disc(0.7, 0.14, 0.05, 0.085, tint(HALDI.water), { w: 1.3 });
+      iso.at([0.7, 0.14, 0.05], (s, [x, y], u) => {
+        for (const [dx, dy, c] of [
+          [-0.04, 0, MARIGOLD[0]],
+          [0.03, -0.01, "#f7a8a0"],
+          [0, 0.015, MARIGOLD[1]],
+          [0.05, 0.012, MARIGOLD[2]],
+        ] as const)
+          flower(s, x + dx * u, y + dy * u, 0.01 * u, c, true);
       });
     },
     (iso) => {
-      // low wooden stool (patla) with brass bowls of haldi beside it
-      iso.box(0.32, 0.32, 0.06, 0.22, 0.16, 0.04, WHITE, { color: HALDI.wood });
-      for (const [a, b] of [
-        [0.34, 0.34],
-        [0.51, 0.34],
-        [0.34, 0.45],
-        [0.51, 0.45],
-      ])
-        iso.box(a, b, 0, 0.02, 0.02, 0.06, WHITE, { color: HALDI.wood });
-      for (const [a, b, r] of [
-        [0.62, 0.48, 0.06],
-        [0.5, 0.62, 0.05],
-      ] as const) {
-        iso.cyl(a, b, 0, r * 0.6, 0.03, WHITE, { r2: r, color: HALDI.brass });
-        iso.disc(a, b, 0.03, r * 0.8, tint(HALDI.paste), { w: 1.3 });
+      // the haldi swing (jhoola): two posts and a beam wound with marigolds, strands hanging down
+      const A = 0.36;
+      const B0 = 0.28;
+      const B1 = 0.68;
+      const TOP = 0.66;
+      const post = (b: number) => {
+        iso.box(A - 0.03, b - 0.03, 0, 0.06, 0.06, 0.03, WHITE, { color: HALDI.wood });
+        iso.box(A - 0.015, b - 0.015, 0.03, 0.03, 0.03, TOP - 0.03, WHITE, { color: HALDI.wood });
+        iso.at([A + 0.015, b + 0.015, TOP - 0.02], (s, [x, y], u) => {
+          for (let k = 0; k < 13; k++) s.blob(x + Math.sin(k * 1.3) * 0.008 * u, y + k * 0.045 * u, 0.01 * u, 0.009 * u, tint(MARIGOLD[k % 3]), { w: 1, mask: true });
+        });
+      };
+      post(B0);
+      iso.box(A - 0.022, B0 - 0.04, TOP, 0.044, B1 - B0 + 0.08, 0.035, WHITE, { color: HALDI.wood });
+      for (let b = B0 + 0.04; b < B1 - 0.02; b += 0.05)
+        iso.at([A + 0.02, b, TOP], (s, [x, y], u) => {
+          const L = (0.08 + ((Math.round(b * 100) * 7) % 4) * 0.015) * u;
+          s.line(x, y, x, y + L, { w: 1, mask: true });
+          for (let yy = 0.012 * u; yy < L; yy += 0.02 * u) s.blob(x, y + yy, 0.009 * u, 0.008 * u, tint(MARIGOLD[Math.round(yy * 300) % 3]), { w: 1, mask: true });
+        });
+      // ropes and a seat with a backrest and cushions
+      const SZ = 0.17;
+      const S0 = B0 + 0.07;
+      const S1 = B1 - 0.07;
+      for (const b of [S0, S1]) {
+        iso.line([A - 0.04, b, TOP], [A - 0.04, b, SZ + 0.03], { w: 1.4 });
+        iso.line([A + 0.04, b, TOP], [A + 0.04, b, SZ + 0.03], { w: 1.4 });
       }
-      iso.cyl(0.66, 0.66, 0, 0.03, 0.06, WHITE, { r2: 0.035, color: HALDI.brass });
+      iso.box(A - 0.06, S0 - 0.01, SZ, 0.12, S1 - S0 + 0.02, 0.03, WHITE, { color: HALDI.wood });
+      iso.box(A - 0.06, S0 - 0.01, SZ + 0.03, 0.02, S1 - S0 + 0.02, 0.1, WHITE, { color: HALDI.wood });
+      iso.box(A - 0.04, S0 + 0.01, SZ + 0.03, 0.09, S1 - S0 - 0.02, 0.03, WHITE, { color: HALDI.accent });
+      iso.box(A - 0.04, S0 + 0.03, SZ + 0.06, 0.03, 0.08, 0.07, WHITE, { color: HALDI.cushion });
+      iso.box(A - 0.04, S1 - 0.11, SZ + 0.06, 0.03, 0.08, 0.07, WHITE, { color: MARIGOLD[1] });
+      post(B1);
     },
-  ]),
-};
-
-const MEH = { wall: "#e3f2dc", floor: "#f2e6d6", accent: "#cfe8c4", rug: "#f7ccd6", umbrellas: ["#f7ccd6", "#f7d77a", "#cfe0f7", "#f6a99a"], rope: "#d9c3a0", seat: "#f3c5cf" };
-
-function umbrella(s: Sketch, x: number, y: number, r: number, c: string) {
-  const canopy: Pt[] = [[x - r, y], ...s.ellipsePts(x, y, r, r * 0.55, Math.PI, Math.PI * 2, 16), [x + r, y]];
-  for (let i = 0; i <= 6; i++) canopy.push([x + r - (2 * r * i) / 6, y + (i % 2 ? 0.012 : 0)]);
-  s.sticker(canopy, 3, 0.16, tint(c));
-  s.stroke(canopy, { closed: true, w: 1.8 });
-  for (const dx of [-0.5, 0, 0.5]) s.line(x, y - r * 0.55, x + dx * r, y, { w: 1, alpha: 0.6 });
-  s.line(x, y - r * 0.55, x, y - r * 0.55 - 0.08, { w: 1.2 });
-  s.stroke(
-    [
-      [x, y],
-      [x, y + r * 0.6],
-      [x + 0.012, y + r * 0.66],
-    ],
-    { w: 1.6 },
-  );
-}
-
-const mehendi: Room = {
-  name: "mehendi",
-  mood: ev("mehendi").tagline,
-  left(s) {
-    wash(s, MEH.wall);
-    umbrella(s, 0.2, 0.22, 0.07, MEH.umbrellas[0]);
-    umbrella(s, 0.38, 0.16, 0.06, MEH.umbrellas[1]);
-    umbrella(s, 0.56, 0.24, 0.075, MEH.umbrellas[2]);
-    umbrella(s, 0.76, 0.17, 0.06, MEH.umbrellas[3]);
-    garland(s, 0.05, 0.95, 0.42, 0.06, 0.012);
-    // henna hand print
-    const hx = 0.86;
-    const hy = 0.58;
-    s.sticker(s.ellipsePts(hx, hy, 0.05, 0.06), 3, 0.15, tint("#f7e6cf"));
-    s.ellipse(hx, hy, 0.05, 0.06, { w: 1.6 });
-    for (let k = 0; k < 6; k++) {
-      const a = (k / 6) * Math.PI * 2;
-      s.circle(hx + Math.cos(a) * 0.025, hy + Math.sin(a) * 0.025, 0.008, { w: 1.1 });
-    }
-    s.circle(hx, hy, 0.01, { w: 1.2 });
-  },
-  right(s) {
-    wash(s, MEH.wall);
-    garland(s, 0.02, 0.98, 0.06, 0.05);
-    inviteCard(s, ev("mehendi"), 0.28, 0.16, 0.44, 0.46, MEH.accent);
-    umbrella(s, 0.12, 0.24, 0.06, MEH.umbrellas[0]);
-    umbrella(s, 0.86, 0.3, 0.06, MEH.umbrellas[2]);
-  },
-  floor(s) {
-    if (look.color) s.washAll(tint(MEH.floor), 1);
-    planks(s, tint(MEH.floor), 8, false);
-    s.shadow(s.ellipsePts(...F(0.3, 0.5), 0.12, 0.08), 0.22, 14);
-    scallopRug(s, [F(0.3, 0.3), F(0.88, 0.3), F(0.88, 0.88), F(0.3, 0.88)], MEH.rug, 12);
-    petals(s, 14, ["#f7ccd6", "#cfe8c4"]);
-  },
-  popups: isoLayers([
     (iso) => {
-      // jhoola: a swing hanging from the top, along the left wall
-      const SA = 0.16;
-      for (const b of [0.36, 0.68]) iso.line([SA, b, 0.98], [SA, b, 0.26], { w: 2 });
-      iso.box(SA - 0.07, 0.34, 0.22, 0.14, 0.36, 0.04, WHITE, { color: MEH.rope });
-      iso.box(SA - 0.07, 0.38, 0.26, 0.05, 0.12, 0.1, WHITE, { color: MEH.seat });
-      iso.box(SA - 0.07, 0.54, 0.26, 0.05, 0.12, 0.1, WHITE, { color: "#fff3b5" });
-      iso.at([SA, 0.52, 0.98], (s, [x, y], u) => {
-        for (let k = 0; k < 6; k++) s.blob(x + (k - 2.5) * 0.04 * u, y + 0.01 * u, 0.012 * u, 0.012 * u, tint(MARIGOLD[k % 3]), { w: 1.2, mask: true });
+      // a brass thali with bowls of haldi paste, rose water and petals
+      iso.cyl(0.66, 0.4, 0, 0.11, 0.015, WHITE, { color: HALDI.brass });
+      for (const [a, b, r, c] of [
+        [0.63, 0.36, 0.035, HALDI.paste],
+        [0.7, 0.38, 0.03, "#f7a8a0"],
+        [0.66, 0.45, 0.03, HALDI.paste],
+      ] as const) {
+        iso.cyl(a, b, 0.015, r * 0.65, 0.03, WHITE, { r2: r, color: HALDI.brass });
+        iso.disc(a, b, 0.045, r * 0.8, tint(c), { w: 1.2 });
+      }
+      // a kalash beside it
+      iso.cyl(0.8, 0.5, 0, 0.035, 0.08, WHITE, { r2: 0.025, color: HALDI.brass });
+      iso.at([0.8, 0.5, 0.08], (s, [x, y], u) => {
+        for (const r of [-0.9, 0, 0.9]) almondLeaf(s, x + r * 0.014 * u, y - 0.014 * u, 0.016 * u, r, LEAF, true);
+        s.blob(x, y - 0.024 * u, 0.015 * u, 0.015 * u, tint("#c9a27a"), { w: 1.3, mask: true });
       });
-    },
-    (iso) => {
-      cushion(iso, 0.44, 0.44, 0.13, "#f7d77a");
-      cushion(iso, 0.64, 0.56, 0.13, "#cfe0f7");
-      // tray with henna cones
-      iso.box(0.5, 0.66, 0, 0.14, 0.1, 0.02, WHITE, { color: GOLD });
-      for (const [a, b] of [
-        [0.54, 0.7],
-        [0.6, 0.72],
-      ])
-        iso.line([a, b, 0.02], [a + 0.04, b - 0.01, 0.05], { w: 3.2 });
     },
   ]),
 };
 
 const SAN = { wall: "#a3a7e0", wallSoft: "#5960a8", floor: "#9296d2", tile: "#b3b6e8", accent: "#c8c4f3", speaker: "#3b3b52", drum: "#f3c5cf" };
 
-const sangeet: Room = {
-  name: "sangeet",
-  mood: ev("sangeet").tagline,
+const party: Room = {
+  name: "party",
+  mood: ev("party").tagline,
   left(s) {
     if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
     // stage backdrop of fairy-light strands
@@ -391,7 +371,7 @@ const sangeet: Room = {
   right(s) {
     if (look.color) s.washAll(tint(SAN.wall, "#ffffff"), 1);
     fairyLights(s, 0.02, 0.98, 0.06, 0.06);
-    inviteCard(s, ev("sangeet"), 0.28, 0.16, 0.44, 0.46, SAN.accent);
+    inviteCard(s, ev("party"), 0.28, 0.16, 0.44, 0.46, SAN.accent);
     for (const [x, y] of [
       [0.14, 0.2],
       [0.86, 0.36],
@@ -864,7 +844,7 @@ const reception: Room = {
   ]),
 };
 
-export const ROOMS: Room[] = [roka, haldi, mehendi, sangeet, wedding, reception];
+export const ROOMS: Room[] = [haldi, party, wedding, reception];
 
 // ---------------------------------------------------------------------------
 // covers

@@ -5,7 +5,7 @@
 // Its floor is a square creased along the diagonal: when the walls are 90° apart the
 // floor lies flat, and as they close the crease rises like a tent.
 
-export const N = 6; // rooms (must match ROOMS in invite.ts: one per wedding event)
+export const N = 4; // rooms (must match ROOMS in invite.ts: one per wedding event)
 export const L = 1; // page width (spine to outer edge)
 export const H = 1; // page height
 export const RIGHT_ANGLE = Math.PI / 2;
