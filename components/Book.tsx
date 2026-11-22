@@ -230,6 +230,7 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
   const pageRefs = useRef<(THREE.Group | null)[]>([]);
   const floorLineRefs = useRef<(Line2 | null)[]>([]);
   const outlineRefs = useRef<(Line2 | null)[]>([]);
+  const borderRefs = useRef<(Line2 | null)[]>([]);
   const coverRefs = useRef<{ front: THREE.Mesh | null; back: THREE.Mesh | null }>({ front: null, back: null });
   const popRefs = useRef<{ outer: THREE.Group | null; hinge: THREE.Group | null }[][]>(Array.from({ length: N }, () => []));
   const target = useMemo(() => new THREE.Vector3(), []);
@@ -272,6 +273,14 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
         if (line) line.geometry.setPositions(wobbleRect(k + 1, 0, 0, peak).flatMap((v) => [v.x, v.y, v.z]));
       }
       // once the book has opened all the way round, the two covers meet back to back: hide them
+      // ...along with their inner borders, and the last page's outline, which would sit
+      // right on top of the first page's and draw every edge twice
+      if (k === N) {
+        const shut = book.open < 0.97;
+        for (const b of borderRefs.current) if (b) b.visible = shut;
+        const ol = outlineRefs.current[N];
+        if (ol) ol.visible = shut;
+      }
       if (k === N) coverRefs.current.front && (coverRefs.current.front.visible = book.open < 0.97);
       if (k === 0) coverRefs.current.back && (coverRefs.current.back.visible = book.open < 0.97);
     }
@@ -372,8 +381,8 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
             lineWidth={1.7}
             transparent
           />
-          {k === N && <Line points={coverBorders.front} color={INK_HEX} lineWidth={2.2} />}
-          {k === 0 && <Line points={coverBorders.back} color={INK_HEX} lineWidth={2.2} />}
+          {k === N && <Line ref={(el) => void (borderRefs.current[0] = el as unknown as Line2 | null)} points={coverBorders.front} color={INK_HEX} lineWidth={2.2} />}
+          {k === 0 && <Line ref={(el) => void (borderRefs.current[1] = el as unknown as Line2 | null)} points={coverBorders.back} color={INK_HEX} lineWidth={2.2} />}
         </group>
       ))}
       {floors.map((fl, p) => (
