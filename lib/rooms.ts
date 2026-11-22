@@ -2102,3 +2102,6 @@ export function drawFrontCover(s: Sketch) {
 export function drawBackCover(s: Sketch) {
   s.rect(0.07, 0.07, 0.86, 0.86, { w: 3 });
 }
+
+// shared drawing helpers, reused by the wedding invite rooms (lib/invite.ts)
+export { F, baseboard, planks, tiles, fairyLights, tapedPhoto, sparkle, almondLeaf, vines, scallopRug, soft, flower, cloud };

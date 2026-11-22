@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { Line2 } from "three-stdlib";
 import { H, L, N, dirOf, floorApex, focusAngle, focusOf, logicalOf, normalOf, pageAngles, roomOpenness, smooth } from "@/lib/fold";
 import { makePaperMaterial, INK } from "@/lib/paperMaterial";
-import { ROOMS } from "@/lib/rooms";
+import { ROOMS } from "@/lib/invite";
 import { book } from "@/lib/store";
 import type { BookTextures } from "@/lib/textures";
 

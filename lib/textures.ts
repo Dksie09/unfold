@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 import { bake } from "./sketch";
-import { ROOMS, drawBackCover, drawFrontCover } from "./rooms";
+import { ROOMS, drawBackCover, drawFrontCover } from "./invite";
 
 export type RoomTextures = { left: THREE.Texture; right: THREE.Texture; floor: THREE.Texture; popups: THREE.Texture[] };
 export type BookTextures = { rooms: RoomTextures[]; front: THREE.Texture; back: THREE.Texture };

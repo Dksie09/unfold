@@ -1,5 +1,12 @@
 # unfold
 
+> **Branch `wedding-invite`:** the book as a wedding invitation. Each page is one event (roka,
+> haldi, mehendi, sangeet, the wedding, reception) with an invite card pinned in the scene; tap it
+> for the date, venue, dress code, a map link and an add-to-calendar file, and RSVP from the top
+> right. Names, dates and places live in `lib/wedding.ts` (mock data for now), the rooms in
+> `lib/invite.ts`. Personal links: `?to=the%20sharma%20family` writes the guest's name on the cover.
+> RSVPs are only kept in the browser for now.
+
 A journal house: a hand-drawn pop-up book whose rooms fold open one at a time.
 
 - **Half-fan book** — pages radiate from the spine. The room in front opens to a right angle,

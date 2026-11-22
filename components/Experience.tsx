@@ -4,11 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
 import Book from "./Book";
-import Closeup from "./Closeup";
-import { SPOTS } from "@/lib/spots";
+import EventCard from "./EventCard";
+import Rsvp from "./Rsvp";
+import { WEDDING, eventByKey, fmtDay, setGuest } from "@/lib/wedding";
 import { HandArrow, HandUnderline } from "./Hand";
 import { N, logicalOf, physicalOf } from "@/lib/fold";
-import { ROOMS } from "@/lib/rooms";
+import { ROOMS } from "@/lib/invite";
 import { book } from "@/lib/store";
 import { buildTextures, type BookTextures } from "@/lib/textures";
 import { look } from "@/lib/style";
@@ -19,7 +20,9 @@ export default function Experience() {
   const [tex, setTex] = useState<BookTextures | null>(null);
   const [room, setRoom] = useState(0); // logical index
   const [open, setOpen] = useState(false);
-  const [writing, setWriting] = useState<{ room: string; spot: string } | null>(null);
+  const [card, setCard] = useState<string | null>(null); // event key whose invite card is open
+  const [rsvp, setRsvp] = useState<string | null>(null); // "" = open, or an event key to pre-tick
+  const writing = card !== null || rsvp !== null;
   const drag = useRef({ x: 0, startX: 0, active: false });
 
   // Draw every surface once the handwriting font is ready (loose pen, a little colour).
@@ -33,6 +36,8 @@ export default function Experience() {
       }
       look.pen = "sketchy";
       look.color = true;
+      // a personal link: ?to=the%20sharma%20family puts their name on the cover
+      setGuest(new URLSearchParams(window.location.search).get("to") ?? "");
       if (alive) setTex(buildTextures(`${FONT}, cursive`));
     })();
     return () => {
@@ -100,9 +105,12 @@ export default function Experience() {
     <main className="stage">
       <header className="topbar">
         <div className="wordmark">
-          unfold
+          {WEDDING.initials}
           <HandUnderline />
         </div>
+        <button className={`hand-btn rsvp-btn ${writing ? "is-hidden" : ""}`} onClick={() => setRsvp("")}>
+          rsvp
+        </button>
       </header>
 
       <div className="canvas-wrap" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onDoubleClick={() => setBookOpen(!open)}>
@@ -110,10 +118,10 @@ export default function Experience() {
           <Canvas orthographic flat linear dpr={[1, 2]} camera={{ position: [0, 2, 10], zoom: 200, near: 0.1, far: 100 }} gl={{ alpha: true, antialias: true }}>
             <Book
               tex={tex}
-              onSpot={(li, spot) => {
-                // move in on the spot, then open its close-up
+              onSpot={(li) => {
+                // move in on the invite card, then hold it up close
                 book.zoomTarget = 1;
-                setTimeout(() => setWriting({ room: ROOMS[li].name, spot }), 380);
+                setTimeout(() => setCard(ROOMS[li].name), 380);
               }}
             />
             <ContactShadows position={[0, -0.04, 0]} scale={5} resolution={512} far={1.4} blur={2.4} opacity={0.32} color="#2a2350" frames={Infinity} />
@@ -131,7 +139,7 @@ export default function Experience() {
         <HandArrow flip />
       </button>
       <button
-        className={`arrow arrow-right ${!open || room < N - 1 ? "" : "is-off"}`}
+        className={`arrow arrow-right ${!open || room < N - 1 ? "" : "is-off"} ${writing ? "is-hidden" : ""}`}
         aria-label={open ? "Next room" : "Open the book"}
         onClick={() => (open ? goTo(room + 1) : setBookOpen(true))}
         disabled={open && room === N - 1}
@@ -142,23 +150,28 @@ export default function Experience() {
       <footer className="caption">
         {open ? (
           <>
-            <div className="room-name">{current.name}</div>
+            <div className="room-name">{eventByKey(current.name)?.name ?? current.name}</div>
+            <div className="room-mood">{eventByKey(current.name) ? `${fmtDay(eventByKey(current.name)!.start)} · tap the card` : ""}</div>
           </>
         ) : (
-          <div className="room-mood">tap the cover to open</div>
+          <div className="room-mood">you&apos;re invited · tap the cover to open</div>
         )}
       </footer>
-      {writing && SPOTS[writing.room]?.[writing.spot] && (
-        <Closeup
-          room={writing.room}
-          spotKey={writing.spot}
-          spot={SPOTS[writing.room][writing.spot]}
+      {card && eventByKey(card) && (
+        <EventCard
+          ev={eventByKey(card)!}
           onClose={() => {
-            setWriting(null);
+            setCard(null);
+            book.zoomTarget = 0;
+          }}
+          onRsvp={() => {
+            setRsvp(card);
+            setCard(null);
             book.zoomTarget = 0;
           }}
         />
       )}
+      {rsvp !== null && <Rsvp preselect={rsvp || undefined} onClose={() => setRsvp(null)} />}
     </main>
   );
 }
