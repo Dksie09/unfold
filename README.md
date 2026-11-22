@@ -9,9 +9,9 @@
 
 A journal house: a hand-drawn pop-up book whose rooms fold open one at a time.
 
-- **Half-fan book** — pages radiate from the spine. The room in front opens to a right angle,
-  its creased floor drops flat, and its pop-up furniture stands up. The rest of the book folds
-  into stacks on either side.
+- **Full-circle book** — pages radiate from the spine all the way round, like a carousel pop-up
+  book. The room in front opens to a right angle with its creased floor flat and its pop-up
+  furniture standing; turning keeps going round, from the last room back to the first.
 - **Hybrid style** — everything is blue-ink line art on paper; the room in front washes with colour.
 - **Four rooms** — bedroom, bathroom, kitchen, balcony. See [ROOMS.md](./ROOMS.md).
 

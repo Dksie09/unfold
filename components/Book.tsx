@@ -217,6 +217,7 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
   const pageRefs = useRef<(THREE.Group | null)[]>([]);
   const floorLineRefs = useRef<(Line2 | null)[]>([]);
   const outlineRefs = useRef<(Line2 | null)[]>([]);
+  const coverRefs = useRef<{ front: THREE.Mesh | null; back: THREE.Mesh | null }>({ front: null, back: null });
   const popRefs = useRef<{ outer: THREE.Group | null; hinge: THREE.Group | null }[][]>(Array.from({ length: N }, () => []));
   const target = useMemo(() => new THREE.Vector3(), []);
 
@@ -245,6 +246,9 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
       m.back.uniforms.uReveal.value = rb;
       m.front.uniforms.uInkAmt.value = k === N ? 1 : 0.55 + 0.45 * rf;
       m.back.uniforms.uInkAmt.value = k === 0 ? 1 : 0.55 + 0.45 * rb;
+      // once the book has opened all the way round, the two covers meet back to back: hide them
+      if (k === N) coverRefs.current.front && (coverRefs.current.front.visible = book.open < 0.97);
+      if (k === 0) coverRefs.current.back && (coverRefs.current.back.visible = book.open < 0.97);
     }
 
     // floors + pop-ups
@@ -282,7 +286,7 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
       const open = roomOpenness(phi, p);
       // Pop-ups are drawn for the fully open room seen head-on, so they only appear once the
       // room has settled at a right angle and fade out as soon as it starts to fold.
-      const rise = smooth((open - 0.965) / 0.035) * smooth((book.open - 0.96) / 0.04);
+      const rise = smooth((open - 0.965) / 0.035) * smooth((book.open - 0.96) / 0.04) * smooth((focusOf(p, f) - 0.9) / 0.1);
       const mid = (a + b) / 2;
       const dA = dirOf(a);
       const dB = dirOf(b);
@@ -328,8 +332,8 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
     <group>
       {pageMats.map((m, k) => (
         <group key={k} ref={(el) => void (pageRefs.current[k] = el)}>
-          <mesh geometry={pageGeo.front} material={m.front} />
-          <mesh geometry={pageGeo.back} material={m.back} />
+          <mesh geometry={pageGeo.front} material={m.front} ref={k === N ? (el) => void (coverRefs.current.front = el) : undefined} />
+          <mesh geometry={pageGeo.back} material={m.back} ref={k === 0 ? (el) => void (coverRefs.current.back = el) : undefined} />
           {hots.front[k].map(({ room, hot }) => (
             <Hotspot key={`f${hot.spot}`} hot={hot} room={room} onPick={pick(room)} />
           ))}
