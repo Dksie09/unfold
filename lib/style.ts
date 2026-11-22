@@ -1,6 +1,6 @@
 // Global drawing style, read while the textures are being drawn.
 //   pen   – "sketchy" (loose, hand-drawn) or "clean" (steady) furniture lines
-//   color – false: blue ink on white paper; true: soft pastel washes
+//   color – false: red ink on white paper; true: soft pastel washes
 // The site uses the loose pen with a little colour; the other options remain for experiments.
 
 export type Pen = "sketchy" | "clean";

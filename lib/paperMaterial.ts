@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export const INK = new THREE.Color(0.169, 0.122, 0.839); // #2b1fd6
+export const INK = new THREE.Color(0.769, 0.086, 0.11); // #c4161c
 export const PAPER = new THREE.Color(0.985, 0.979, 0.958);
 
 const vertex = /* glsl */ `
