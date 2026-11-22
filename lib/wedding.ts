@@ -12,8 +12,8 @@ export type WeddingEvent = {
 };
 
 export const WEDDING = {
-  couple: ["aarav", "meera"] as const,
-  initials: "a & m",
+  couple: ["tom", "zendaya"] as const,
+  initials: "t & z",
   city: "jaipur",
   hosts: "together with their families",
   rsvpBy: "15 jan 2027",

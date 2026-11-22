@@ -660,7 +660,7 @@ const reception: Room = {
         s.blob(x + 0.012 * u, y - 0.008 * u, 0.01 * u, 0.01 * u, tint(REC.blush), { w: 1.3, mask: true });
         s.line(x - 0.008 * u, y - 0.02 * u, x - 0.008 * u, y - 0.06 * u, { w: 1.2, mask: true });
         s.line(x + 0.008 * u, y - 0.02 * u, x + 0.008 * u, y - 0.06 * u, { w: 1.2, mask: true });
-        s.text("a&m", x, y - 0.07 * u, 0.026 * u);
+        s.text("t&z", x, y - 0.07 * u, 0.026 * u);
         s.maskFill(s.rectPts(x - 0.022 * u, y - 0.085 * u, 0.044 * u, 0.03 * u));
       });
       // the couple's loveseat under the floral arch
@@ -957,7 +957,7 @@ const party: Room = {
       iso.box(0.2, 0.05, 0, 0.38, 0.13, 0.26, WHITE, { color: SAN.booth });
       iso.at([0.39, 0.18, 0.13], (s, [x, y], u) => {
         if (look.color) s.glow(x, y, 0.07 * u, SAN.pink, 0.6);
-        s.text("a&m", x, y, 0.045 * u, { rotate: -0.45 });
+        s.text("t&z", x, y, 0.045 * u, { rotate: -0.45 });
       });
       for (const a of [0.27, 0.5]) {
         iso.disc(a, 0.115, 0.26, 0.045, tint("#2f3146"), { w: 1.4 });

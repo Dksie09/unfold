@@ -16,13 +16,13 @@ const PAGE_GAP = 0.014; // thickness between pages when the book is shut
 const INK_HEX = `#${INK.getHexString()}`;
 
 /** The page's house shape: walls of height H with a peak of height G above. */
-const housePts = (inset = 0): [number, number][] => {
+const housePts = (inset = 0, g = G): [number, number][] => {
   const k = inset * 1.6;
   return [
     [inset, inset],
     [L - inset, inset],
     [L - inset, H - inset * 0.3],
-    [L / 2, H + G - k],
+    [L / 2, H + g - k],
     [inset, H - inset * 0.3],
     [inset, inset],
   ];
@@ -39,9 +39,23 @@ function houseGeometry(back: boolean) {
   return geo;
 }
 
+/** Move the roof's apex to height H + g (pages beside the open room get a lower peak). */
+function setPeak(geo: THREE.BufferGeometry, g: number) {
+  const pos = geo.attributes.position;
+  const uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++)
+    if (pos.getY(i) > H + 1e-3) {
+      pos.setY(i, H + g);
+      uv.setY(i, (H + g) / H);
+    }
+  pos.needsUpdate = true;
+  uv.needsUpdate = true;
+  geo.computeBoundingSphere();
+}
+
 /** Hand-wobbled closed outline in a page's local XY plane. */
-function wobbleRect(seed: number, inset = 0, z = 0): THREE.Vector3[] {
-  const corners = housePts(inset);
+function wobbleRect(seed: number, inset = 0, z = 0, g = G): THREE.Vector3[] {
+  const corners = housePts(inset, g);
   const out: THREE.Vector3[] = [];
   for (let s = 0; s < corners.length - 1; s++) {
     const [x1, y1] = corners[s];
@@ -139,12 +153,11 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
   const { camera, size } = useThree();
 
   // ---- static pieces ------------------------------------------------------
-  const pageGeo = useMemo(() => {
-    const front = houseGeometry(false);
-    // back face: rotated so the spine sits at u = 1 (no mirrored drawings)
-    const back = houseGeometry(true);
-    return { front, back };
-  }, []);
+  // one geometry per page, so each page's peak can be raised or lowered on its own
+  const pageGeo = useMemo(
+    () => Array.from({ length: N + 1 }, () => ({ front: houseGeometry(false), back: houseGeometry(true), g: G })),
+    [],
+  );
 
   // Page k front = right wall of physical room k (or the front cover for k = N).
   // Page k back  = left wall of physical room k-1 (or the back cover for k = 0).
@@ -246,6 +259,18 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
       m.back.uniforms.uReveal.value = rb;
       m.front.uniforms.uInkAmt.value = k === N ? 1 : 0.55 + 0.45 * rf;
       m.back.uniforms.uInkAmt.value = k === 0 ? 1 : 0.55 + 0.45 * rb;
+      // the open room's two walls keep their full peak; the others drop to a small one so the
+      // pages fanned round the sides don't read as tall slanted spikes
+      const near = Math.max(focusOf(k, f), focusOf(k - 1, f));
+      const peak = G * (1 + (0.25 + 0.75 * near - 1) * e);
+      const pg = pageGeo[k];
+      if (Math.abs(pg.g - peak) > 1e-3) {
+        pg.g = peak;
+        setPeak(pg.front, peak);
+        setPeak(pg.back, peak);
+        const line = outlineRefs.current[k];
+        if (line) line.geometry.setPositions(wobbleRect(k + 1, 0, 0, peak).flatMap((v) => [v.x, v.y, v.z]));
+      }
       // once the book has opened all the way round, the two covers meet back to back: hide them
       if (k === N) coverRefs.current.front && (coverRefs.current.front.visible = book.open < 0.97);
       if (k === 0) coverRefs.current.back && (coverRefs.current.back.visible = book.open < 0.97);
@@ -332,8 +357,8 @@ export default function Book({ tex, onSpot }: { tex: BookTextures; onSpot: (room
     <group>
       {pageMats.map((m, k) => (
         <group key={k} ref={(el) => void (pageRefs.current[k] = el)}>
-          <mesh geometry={pageGeo.front} material={m.front} ref={k === N ? (el) => void (coverRefs.current.front = el) : undefined} />
-          <mesh geometry={pageGeo.back} material={m.back} ref={k === 0 ? (el) => void (coverRefs.current.back = el) : undefined} />
+          <mesh geometry={pageGeo[k].front} material={m.front} ref={k === N ? (el) => void (coverRefs.current.front = el) : undefined} />
+          <mesh geometry={pageGeo[k].back} material={m.back} ref={k === 0 ? (el) => void (coverRefs.current.back = el) : undefined} />
           {hots.front[k].map(({ room, hot }) => (
             <Hotspot key={`f${hot.spot}`} hot={hot} room={room} onPick={pick(room)} />
           ))}
