@@ -338,7 +338,7 @@ const haldi: Room = {
   ]),
 };
 
-const WED = { wall: "#f9e1dc", drape: "#e8857e", drape2: "#f5c7a9", floor: "#f2e2cc", accent: "#f6b7aa", pillar: GOLD, seat: "#e8857e" };
+const WED = { wall: "#fbe7ec", drape: "#f08bb6", drape2: "#f7d98a", floor: "#faf1e6", accent: "#f9c6da", drapeLit: "#f7b3cf", pillar: GOLD, seat: "#f5b942" };
 
 /** Draped fabric hanging in swags across the top of a wall. */
 function swags(s: Sketch, x1: number, x2: number, y: number, n: number, c: string) {
@@ -516,7 +516,7 @@ const wedding: Room = {
       mandapSide(iso, [0.22, 0.74], [0.74, 0.74]);
       const H = MANDAP_H;
       const apex: [number, number, number] = [0.48, 0.48, H + 0.2];
-      iso.face([[0.74, 0.22, H], [0.74, 0.74, H], apex], tint(WED.drape2), { w: 2.2 });
+      iso.face([[0.74, 0.22, H], [0.74, 0.74, H], apex], tint(WED.drapeLit), { w: 2.2 });
       iso.face([[0.22, 0.74, H], [0.74, 0.74, H], apex], tint(WED.drape), { w: 2.2 });
       for (const t of [0.33, 0.66]) {
         iso.line([0.74, 0.22 + 0.52 * t, H], apex, { w: 1, alpha: 0.55 });
