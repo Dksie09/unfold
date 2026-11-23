@@ -113,3 +113,7 @@ loads.
 - `main`: the journal.
 - `wedding-invite`: the same book turned into a wedding invitation, with one room per event and an
   RSVP.
+
+## License
+
+[MIT](LICENSE)
