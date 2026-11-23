@@ -59,3 +59,7 @@ Stack: Next.js (App Router), React Three Fiber, drei, three.js. Handwriting is C
 Each floor is a square creased on its diagonal. With walls at angle θ apart, the crease apex sits at
 distance `L / cos(θ/2)` along the bisector and height `sqrt(2L² − (L / cos(θ/2))²)`: flat at 90°,
 standing straight up when the book is shut.
+
+## License
+
+[MIT](LICENSE)
